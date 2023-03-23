@@ -12,7 +12,7 @@ Public Class RatingPanel
     Public Event ResponseGiven()
     Public Event ResponseRemoved()
 
-    Public Sub AddQuestions(ByRef CurrentRatingStimulus As VideoTrial)
+    Public Sub AddQuestion(ByRef CurrentRatingStimulus As VideoTrial)
 
         Me.CurrentRatingStimulus = CurrentRatingStimulus
 

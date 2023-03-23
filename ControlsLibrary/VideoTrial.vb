@@ -66,11 +66,9 @@
 
         For n = CurrentItemIndex - 1 To 0 Step -1
             If TrialList(n).ShouldBeRated = True Then
-                If TrialList(n).IsRated = False Then
-                    CurrentItemIndex = n
-                    SelectedStimulus = TrialList(n)
-                    Exit For
-                End If
+                CurrentItemIndex = n
+                SelectedStimulus = TrialList(n)
+                Exit For
             End If
         Next
 
@@ -88,11 +86,9 @@
 
         For n = CurrentItemIndex + 1 To TrialList.Count - 1
             If TrialList(n).ShouldBeRated = True Then
-                If TrialList(n).IsRated = False Then
-                    CurrentItemIndex = n
-                    SelectedStimulus = TrialList(n)
-                    Exit For
-                End If
+                CurrentItemIndex = n
+                SelectedStimulus = TrialList(n)
+                Exit For
             End If
         Next
 
@@ -242,19 +238,19 @@ Public Class VideoTrial
         Return rnd.NextDouble()
     End Function
 
-    Public Shadows Function ToString() As String
+    Public Overrides Function ToString() As String
 
         Dim OutputList As New List(Of String)
 
         OutputList.Add(RawDataLine)
-        OutputList.Add(IO.Path.GetFileNameWithoutExtension(CorrectVideoPath))
-        OutputList.Add(TrialVideoStartTime)
+        OutputList.Add(IO.Path.GetFileName(CorrectVideoPath))
+        OutputList.Add(Math.Round(TrialVideoStartTime) & " s")
 
         If IsRated() = True Then
             OutputList.Add(GetResponse)
         End If
 
-        Return String.Join(" ", OutputList)
+        Return String.Join(", ", OutputList)
 
     End Function
 

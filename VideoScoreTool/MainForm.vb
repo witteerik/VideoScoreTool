@@ -37,6 +37,9 @@ Public Class MainForm
 
     Private PlaySpeed As Double = 1
 
+    Private WithEvents ScoringPanel As New ControlsLibrary.RatingPanel
+
+
     'Settings
 
     Private Sub MainForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -53,6 +56,11 @@ Public Class MainForm
         ScoringType_ComboBox.Items.Add(ControlsLibrary.VideoTrial.ScoringTypes.Scale_0_to_10)
         ScoringType_ComboBox.Items.Add(ControlsLibrary.VideoTrial.ScoringTypes.Text)
         ScoringType_ComboBox.SelectedIndex = 0
+
+        'Creating and adding the scoring panel
+        ScoringPanel = New ControlsLibrary.RatingPanel
+        ScoringPanel.Dock = DockStyle.Fill
+        ScoringPanelHolder_Panel.Controls.Add(ScoringPanel)
 
     End Sub
 
@@ -258,18 +266,29 @@ Public Class MainForm
 
         'Files loaded ok
 
-        'Settings ok
+        'Disabling the Settings_GroupBox
         Settings_GroupBox.Enabled = False
-        WorkFlow_TableLayoutPanel.Enabled = True
 
+        'Setting trial order
         CurrentVideoTrialSet.SetTrialOrder(TrialOrder_ComboBox.SelectedItem)
 
-        CurrentVideoTrialSet.CurrentItemIndex = -1
-        Dim NextStimlus = CurrentVideoTrialSet.GetNextTrial()
-        If CurrentVideoTrialSet.TrialList.Count > 0 Then
-            ShowNewTrial(NextStimlus)
+        'Adding trials to be scored into the Trials_ListBox
+        Trials_ListBox.Items.Clear()
+        For i = 0 To CurrentVideoTrialSet.TrialList.Count - 1
+            If CurrentVideoTrialSet.TrialList(i).ShouldBeRated = True Then
+                Trials_ListBox.Items.Add(CurrentVideoTrialSet.TrialList(i))
+            End If
+        Next
+
+        'Enabling the WorkFlow_TableLayoutPanel
+        WorkFlow_TableLayoutPanel.Enabled = True
+
+        'Shows the first trial
+        If Trials_ListBox.Items.Count = 0 Then
+            MsgBox("No trials to show!", MsgBoxStyle.Information, "Video Score Tool")
+            Exit Sub
         Else
-            MsgBox("No trials to show!", MsgBoxStyle.Information, "Information")
+            Trials_ListBox.SelectedIndex = 0
         End If
 
     End Sub
@@ -300,6 +319,10 @@ Public Class MainForm
 
         ExperimentVideo_TrackBar.Minimum = 0
         ExperimentVideo_TrackBar.Maximum = Math.Max(0, CurrentExperimentVideoEndFrame - CurrentExperimentVideoStartFrame)
+
+        'Adding question
+        ScoringPanel.Controls.Clear()
+        ScoringPanel.AddQuestion(Trial)
 
         CorrectVideo_PlayButton.Enabled = True
         ExperimentVideo_PlayButton.Enabled = True
@@ -433,34 +456,42 @@ Public Class MainForm
 
     Private Sub Next_Button_Click(sender As Object, e As EventArgs) Handles Next_Button.Click
 
-        Dim NextTrial = CurrentVideoTrialSet.GetNextTrial()
-        If NextTrial Is Nothing Then
-            MsgBox("No more trial to show", MsgBoxStyle.Information, "Video Score Tool")
+        If Trials_ListBox.SelectedIndex = Trials_ListBox.Items.Count - 1 Then
+            MsgBox("You allready display the last trial!", MsgBoxStyle.Information, "Video Score Tool")
+            Exit Sub
         Else
-            ShowNewTrial(NextTrial)
+            Trials_ListBox.SelectedIndex += 1
         End If
 
     End Sub
 
     Private Sub Previous_Button_Click(sender As Object, e As EventArgs) Handles Previous_Button.Click
 
-        Dim NextTrial = CurrentVideoTrialSet.GetPreviousTrial()
-        If NextTrial Is Nothing Then
-            MsgBox("No previous trial to show", MsgBoxStyle.Information, "Video Score Tool")
+        If Trials_ListBox.SelectedIndex = 0 Then
+            MsgBox("You allready display the first trial!", MsgBoxStyle.Information, "Video Score Tool")
+            Exit Sub
         Else
-            ShowNewTrial(NextTrial)
+            Trials_ListBox.SelectedIndex -= 1
         End If
 
     End Sub
 
     Private Sub FirstUnscored_Button_Click(sender As Object, e As EventArgs) Handles FirstUnscored_Button.Click
 
-        Dim NextTrial = CurrentVideoTrialSet.GetNextNonCompleteStimulus()
-        If NextTrial Is Nothing Then
-            MsgBox("No more unscored trials to show", MsgBoxStyle.Information, "Video Score Tool")
-        Else
-            ShowNewTrial(NextTrial)
-        End If
+        'Selecting the trial in the Trials_ListBox
+        For i = 0 To Trials_ListBox.Items.Count - 1
+            Dim CastItem = TryCast(Trials_ListBox.Items(i), ControlsLibrary.VideoTrial)
+            If CastItem IsNot Nothing Then
+                If CastItem.ShouldBeRated = True Then
+                    If CastItem.IsRated = False Then
+                        Trials_ListBox.SelectedIndex = i
+                        Exit Sub
+                    End If
+                End If
+            End If
+        Next
+
+        MsgBox("No more unscored trials to show", MsgBoxStyle.Information, "Video Score Tool")
 
     End Sub
 
@@ -546,5 +577,12 @@ Public Class MainForm
 
     End Sub
 
+    Private Sub Trials_ListBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Trials_ListBox.SelectedIndexChanged
 
+        Dim NewTrial = TryCast(Trials_ListBox.SelectedItem, ControlsLibrary.VideoTrial)
+        If NewTrial IsNot Nothing Then
+            ShowNewTrial(NewTrial)
+        End If
+
+    End Sub
 End Class

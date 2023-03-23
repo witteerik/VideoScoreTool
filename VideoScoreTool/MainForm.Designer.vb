@@ -36,7 +36,6 @@ Partial Class MainForm
         Me.CorrectVideoAutoplay_CheckBox = New System.Windows.Forms.CheckBox()
         Me.GroupBox4 = New System.Windows.Forms.GroupBox()
         Me.Trials_ListBox = New System.Windows.Forms.ListBox()
-        Me.GroupBox6 = New System.Windows.Forms.GroupBox()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
         Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
         Me.ExperimentVideo_ImageBox = New Emgu.CV.UI.ImageBox()
@@ -69,6 +68,7 @@ Partial Class MainForm
         Me.DataFile_TextBox = New System.Windows.Forms.TextBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
+        Me.ScoringPanelHolder_Panel = New System.Windows.Forms.Panel()
         Me.WorkFlow_TableLayoutPanel.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         Me.GroupBox5.SuspendLayout()
@@ -95,17 +95,16 @@ Partial Class MainForm
         Me.WorkFlow_TableLayoutPanel.Controls.Add(Me.GroupBox2, 0, 0)
         Me.WorkFlow_TableLayoutPanel.Controls.Add(Me.GroupBox5, 1, 0)
         Me.WorkFlow_TableLayoutPanel.Controls.Add(Me.GroupBox4, 3, 0)
-        Me.WorkFlow_TableLayoutPanel.Controls.Add(Me.GroupBox6, 1, 1)
         Me.WorkFlow_TableLayoutPanel.Controls.Add(Me.GroupBox3, 2, 0)
-        Me.WorkFlow_TableLayoutPanel.Controls.Add(Me.TableLayoutPanel2, 1, 2)
+        Me.WorkFlow_TableLayoutPanel.Controls.Add(Me.TableLayoutPanel2, 1, 1)
+        Me.WorkFlow_TableLayoutPanel.Controls.Add(Me.ScoringPanelHolder_Panel, 2, 1)
         Me.WorkFlow_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.WorkFlow_TableLayoutPanel.Enabled = False
         Me.WorkFlow_TableLayoutPanel.Location = New System.Drawing.Point(3, 143)
         Me.WorkFlow_TableLayoutPanel.Name = "WorkFlow_TableLayoutPanel"
-        Me.WorkFlow_TableLayoutPanel.RowCount = 3
+        Me.WorkFlow_TableLayoutPanel.RowCount = 2
         Me.WorkFlow_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.WorkFlow_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 80.0!))
-        Me.WorkFlow_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.WorkFlow_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 102.0!))
         Me.WorkFlow_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
         Me.WorkFlow_TableLayoutPanel.Size = New System.Drawing.Size(1188, 456)
         Me.WorkFlow_TableLayoutPanel.TabIndex = 0
@@ -118,7 +117,7 @@ Partial Class MainForm
         Me.GroupBox2.Dock = System.Windows.Forms.DockStyle.Fill
         Me.GroupBox2.Location = New System.Drawing.Point(3, 3)
         Me.GroupBox2.Name = "GroupBox2"
-        Me.WorkFlow_TableLayoutPanel.SetRowSpan(Me.GroupBox2, 3)
+        Me.WorkFlow_TableLayoutPanel.SetRowSpan(Me.GroupBox2, 2)
         Me.GroupBox2.Size = New System.Drawing.Size(154, 450)
         Me.GroupBox2.TabIndex = 1
         Me.GroupBox2.TabStop = False
@@ -163,7 +162,7 @@ Partial Class MainForm
         Me.GroupBox5.Dock = System.Windows.Forms.DockStyle.Fill
         Me.GroupBox5.Location = New System.Drawing.Point(163, 3)
         Me.GroupBox5.Name = "GroupBox5"
-        Me.GroupBox5.Size = New System.Drawing.Size(428, 310)
+        Me.GroupBox5.Size = New System.Drawing.Size(428, 348)
         Me.GroupBox5.TabIndex = 4
         Me.GroupBox5.TabStop = False
         Me.GroupBox5.Text = "Correct video"
@@ -182,9 +181,9 @@ Partial Class MainForm
         Me.Video1_TableLayoutPanel.Name = "Video1_TableLayoutPanel"
         Me.Video1_TableLayoutPanel.RowCount = 3
         Me.Video1_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.Video1_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 42.0!))
         Me.Video1_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35.0!))
-        Me.Video1_TableLayoutPanel.Size = New System.Drawing.Size(422, 288)
+        Me.Video1_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35.0!))
+        Me.Video1_TableLayoutPanel.Size = New System.Drawing.Size(422, 326)
         Me.Video1_TableLayoutPanel.TabIndex = 19
         '
         'CorrectVideo_ImageBox
@@ -194,7 +193,7 @@ Partial Class MainForm
         Me.CorrectVideo_ImageBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.CorrectVideo_ImageBox.Location = New System.Drawing.Point(3, 3)
         Me.CorrectVideo_ImageBox.Name = "CorrectVideo_ImageBox"
-        Me.CorrectVideo_ImageBox.Size = New System.Drawing.Size(416, 205)
+        Me.CorrectVideo_ImageBox.Size = New System.Drawing.Size(416, 250)
         Me.CorrectVideo_ImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
         Me.CorrectVideo_ImageBox.TabIndex = 2
         Me.CorrectVideo_ImageBox.TabStop = False
@@ -202,7 +201,7 @@ Partial Class MainForm
         'CorrectVideo_PlayButton
         '
         Me.CorrectVideo_PlayButton.Enabled = False
-        Me.CorrectVideo_PlayButton.Location = New System.Drawing.Point(96, 256)
+        Me.CorrectVideo_PlayButton.Location = New System.Drawing.Point(96, 294)
         Me.CorrectVideo_PlayButton.Name = "CorrectVideo_PlayButton"
         Me.CorrectVideo_PlayButton.Size = New System.Drawing.Size(44, 28)
         Me.CorrectVideo_PlayButton.TabIndex = 1
@@ -213,16 +212,16 @@ Partial Class MainForm
         '
         Me.Video1_TableLayoutPanel.SetColumnSpan(Me.CorrectVideo_TrackBar, 2)
         Me.CorrectVideo_TrackBar.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.CorrectVideo_TrackBar.Location = New System.Drawing.Point(3, 214)
+        Me.CorrectVideo_TrackBar.Location = New System.Drawing.Point(3, 259)
         Me.CorrectVideo_TrackBar.Name = "CorrectVideo_TrackBar"
-        Me.CorrectVideo_TrackBar.Size = New System.Drawing.Size(416, 36)
+        Me.CorrectVideo_TrackBar.Size = New System.Drawing.Size(416, 29)
         Me.CorrectVideo_TrackBar.TabIndex = 4
         '
         'CorrectVideoAutoplay_CheckBox
         '
         Me.CorrectVideoAutoplay_CheckBox.AutoSize = True
         Me.CorrectVideoAutoplay_CheckBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.CorrectVideoAutoplay_CheckBox.Location = New System.Drawing.Point(10, 256)
+        Me.CorrectVideoAutoplay_CheckBox.Location = New System.Drawing.Point(10, 294)
         Me.CorrectVideoAutoplay_CheckBox.Margin = New System.Windows.Forms.Padding(10, 3, 3, 3)
         Me.CorrectVideoAutoplay_CheckBox.Name = "CorrectVideoAutoplay_CheckBox"
         Me.CorrectVideoAutoplay_CheckBox.Size = New System.Drawing.Size(80, 29)
@@ -236,7 +235,7 @@ Partial Class MainForm
         Me.GroupBox4.Dock = System.Windows.Forms.DockStyle.Fill
         Me.GroupBox4.Location = New System.Drawing.Point(1031, 3)
         Me.GroupBox4.Name = "GroupBox4"
-        Me.WorkFlow_TableLayoutPanel.SetRowSpan(Me.GroupBox4, 3)
+        Me.WorkFlow_TableLayoutPanel.SetRowSpan(Me.GroupBox4, 2)
         Me.GroupBox4.Size = New System.Drawing.Size(154, 450)
         Me.GroupBox4.TabIndex = 5
         Me.GroupBox4.TabStop = False
@@ -252,24 +251,13 @@ Partial Class MainForm
         Me.Trials_ListBox.Size = New System.Drawing.Size(148, 428)
         Me.Trials_ListBox.TabIndex = 0
         '
-        'GroupBox6
-        '
-        Me.WorkFlow_TableLayoutPanel.SetColumnSpan(Me.GroupBox6, 2)
-        Me.GroupBox6.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.GroupBox6.Location = New System.Drawing.Point(163, 319)
-        Me.GroupBox6.Name = "GroupBox6"
-        Me.GroupBox6.Size = New System.Drawing.Size(862, 74)
-        Me.GroupBox6.TabIndex = 6
-        Me.GroupBox6.TabStop = False
-        Me.GroupBox6.Text = "Scoring"
-        '
         'GroupBox3
         '
         Me.GroupBox3.Controls.Add(Me.TableLayoutPanel3)
         Me.GroupBox3.Dock = System.Windows.Forms.DockStyle.Fill
         Me.GroupBox3.Location = New System.Drawing.Point(597, 3)
         Me.GroupBox3.Name = "GroupBox3"
-        Me.GroupBox3.Size = New System.Drawing.Size(428, 310)
+        Me.GroupBox3.Size = New System.Drawing.Size(428, 348)
         Me.GroupBox3.TabIndex = 2
         Me.GroupBox3.TabStop = False
         Me.GroupBox3.Text = "Trial video"
@@ -288,9 +276,9 @@ Partial Class MainForm
         Me.TableLayoutPanel3.Name = "TableLayoutPanel3"
         Me.TableLayoutPanel3.RowCount = 3
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 42.0!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35.0!))
-        Me.TableLayoutPanel3.Size = New System.Drawing.Size(422, 288)
+        Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35.0!))
+        Me.TableLayoutPanel3.Size = New System.Drawing.Size(422, 326)
         Me.TableLayoutPanel3.TabIndex = 20
         '
         'ExperimentVideo_ImageBox
@@ -300,7 +288,7 @@ Partial Class MainForm
         Me.ExperimentVideo_ImageBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.ExperimentVideo_ImageBox.Location = New System.Drawing.Point(3, 3)
         Me.ExperimentVideo_ImageBox.Name = "ExperimentVideo_ImageBox"
-        Me.ExperimentVideo_ImageBox.Size = New System.Drawing.Size(416, 205)
+        Me.ExperimentVideo_ImageBox.Size = New System.Drawing.Size(416, 250)
         Me.ExperimentVideo_ImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
         Me.ExperimentVideo_ImageBox.TabIndex = 2
         Me.ExperimentVideo_ImageBox.TabStop = False
@@ -308,7 +296,7 @@ Partial Class MainForm
         'ExperimentVideo_PlayButton
         '
         Me.ExperimentVideo_PlayButton.Enabled = False
-        Me.ExperimentVideo_PlayButton.Location = New System.Drawing.Point(96, 256)
+        Me.ExperimentVideo_PlayButton.Location = New System.Drawing.Point(96, 294)
         Me.ExperimentVideo_PlayButton.Name = "ExperimentVideo_PlayButton"
         Me.ExperimentVideo_PlayButton.Size = New System.Drawing.Size(44, 28)
         Me.ExperimentVideo_PlayButton.TabIndex = 1
@@ -319,16 +307,16 @@ Partial Class MainForm
         '
         Me.TableLayoutPanel3.SetColumnSpan(Me.ExperimentVideo_TrackBar, 2)
         Me.ExperimentVideo_TrackBar.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.ExperimentVideo_TrackBar.Location = New System.Drawing.Point(3, 214)
+        Me.ExperimentVideo_TrackBar.Location = New System.Drawing.Point(3, 259)
         Me.ExperimentVideo_TrackBar.Name = "ExperimentVideo_TrackBar"
-        Me.ExperimentVideo_TrackBar.Size = New System.Drawing.Size(416, 36)
+        Me.ExperimentVideo_TrackBar.Size = New System.Drawing.Size(416, 29)
         Me.ExperimentVideo_TrackBar.TabIndex = 4
         '
         'ExperimentVideoAutoplay_CheckBox
         '
         Me.ExperimentVideoAutoplay_CheckBox.AutoSize = True
         Me.ExperimentVideoAutoplay_CheckBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.ExperimentVideoAutoplay_CheckBox.Location = New System.Drawing.Point(10, 256)
+        Me.ExperimentVideoAutoplay_CheckBox.Location = New System.Drawing.Point(10, 294)
         Me.ExperimentVideoAutoplay_CheckBox.Margin = New System.Windows.Forms.Padding(10, 3, 3, 3)
         Me.ExperimentVideoAutoplay_CheckBox.Name = "ExperimentVideoAutoplay_CheckBox"
         Me.ExperimentVideoAutoplay_CheckBox.Size = New System.Drawing.Size(80, 29)
@@ -339,7 +327,6 @@ Partial Class MainForm
         'TableLayoutPanel2
         '
         Me.TableLayoutPanel2.ColumnCount = 3
-        Me.WorkFlow_TableLayoutPanel.SetColumnSpan(Me.TableLayoutPanel2, 2)
         Me.TableLayoutPanel2.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333!))
         Me.TableLayoutPanel2.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333!))
         Me.TableLayoutPanel2.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333!))
@@ -347,19 +334,20 @@ Partial Class MainForm
         Me.TableLayoutPanel2.Controls.Add(Me.FirstUnscored_Button, 2, 0)
         Me.TableLayoutPanel2.Controls.Add(Me.Next_Button, 0, 0)
         Me.TableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel2.Location = New System.Drawing.Point(163, 399)
+        Me.TableLayoutPanel2.Location = New System.Drawing.Point(163, 357)
         Me.TableLayoutPanel2.Name = "TableLayoutPanel2"
         Me.TableLayoutPanel2.RowCount = 1
         Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel2.Size = New System.Drawing.Size(862, 54)
+        Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
+        Me.TableLayoutPanel2.Size = New System.Drawing.Size(428, 96)
         Me.TableLayoutPanel2.TabIndex = 11
         '
         'Previous_Button
         '
         Me.Previous_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Previous_Button.Location = New System.Drawing.Point(290, 3)
+        Me.Previous_Button.Location = New System.Drawing.Point(145, 3)
         Me.Previous_Button.Name = "Previous_Button"
-        Me.Previous_Button.Size = New System.Drawing.Size(281, 48)
+        Me.Previous_Button.Size = New System.Drawing.Size(136, 90)
         Me.Previous_Button.TabIndex = 8
         Me.Previous_Button.Text = "&Previous trial"
         Me.Previous_Button.UseVisualStyleBackColor = True
@@ -367,9 +355,9 @@ Partial Class MainForm
         'FirstUnscored_Button
         '
         Me.FirstUnscored_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.FirstUnscored_Button.Location = New System.Drawing.Point(577, 3)
+        Me.FirstUnscored_Button.Location = New System.Drawing.Point(287, 3)
         Me.FirstUnscored_Button.Name = "FirstUnscored_Button"
-        Me.FirstUnscored_Button.Size = New System.Drawing.Size(282, 48)
+        Me.FirstUnscored_Button.Size = New System.Drawing.Size(138, 90)
         Me.FirstUnscored_Button.TabIndex = 10
         Me.FirstUnscored_Button.Text = "First &unscored trial"
         Me.FirstUnscored_Button.UseVisualStyleBackColor = True
@@ -379,7 +367,7 @@ Partial Class MainForm
         Me.Next_Button.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Next_Button.Location = New System.Drawing.Point(3, 3)
         Me.Next_Button.Name = "Next_Button"
-        Me.Next_Button.Size = New System.Drawing.Size(281, 48)
+        Me.Next_Button.Size = New System.Drawing.Size(136, 90)
         Me.Next_Button.TabIndex = 9
         Me.Next_Button.Text = "&Next trial"
         Me.Next_Button.UseVisualStyleBackColor = True
@@ -603,6 +591,15 @@ Partial Class MainForm
         Me.TableLayoutPanel4.Size = New System.Drawing.Size(1194, 602)
         Me.TableLayoutPanel4.TabIndex = 1
         '
+        'ScoringPanelHolder_Panel
+        '
+        Me.ScoringPanelHolder_Panel.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.ScoringPanelHolder_Panel.Location = New System.Drawing.Point(594, 354)
+        Me.ScoringPanelHolder_Panel.Margin = New System.Windows.Forms.Padding(0)
+        Me.ScoringPanelHolder_Panel.Name = "ScoringPanelHolder_Panel"
+        Me.ScoringPanelHolder_Panel.Size = New System.Drawing.Size(434, 102)
+        Me.ScoringPanelHolder_Panel.TabIndex = 12
+        '
         'MainForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
@@ -638,7 +635,6 @@ Partial Class MainForm
     Friend WithEvents GroupBox3 As GroupBox
     Friend WithEvents GroupBox5 As GroupBox
     Friend WithEvents GroupBox4 As GroupBox
-    Friend WithEvents GroupBox6 As GroupBox
     Friend WithEvents Previous_Button As Button
     Friend WithEvents Next_Button As Button
     Friend WithEvents FirstUnscored_Button As Button
@@ -678,4 +674,5 @@ Partial Class MainForm
     Friend WithEvents SelectCorrectVideosFolder_Button As Button
     Friend WithEvents CorrectVideosFolder_TextBox As TextBox
     Friend WithEvents Label8 As Label
+    Friend WithEvents ScoringPanelHolder_Panel As Panel
 End Class
