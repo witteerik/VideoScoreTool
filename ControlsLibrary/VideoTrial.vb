@@ -1,6 +1,5 @@
 ﻿Public Class VideoTrialSet
     Public Property TrialList As New List(Of VideoTrial)
-    Public Property CurrentItemIndex As Integer = 0
 
     Public Enum Trialorders
         Random
@@ -9,7 +8,7 @@
         Input
     End Enum
 
-    Public Sub SetTrialOrder(ByVal TrialOrder As Trialorders)
+    Private Function GetSortedTrialListCopy(ByVal TrialOrder As Trialorders) As List(Of VideoTrial)
 
         'Sorting the trial list
         Dim MySortedList As New List(Of VideoTrial)
@@ -33,89 +32,101 @@
         For Each CurrentList In SortQuery
             MySortedList.Add(CurrentList)
         Next
-        TrialList = MySortedList
+
+        Return MySortedList
+
+    End Function
+
+    Public Sub SetTrialOrder(ByVal TrialOrder As Trialorders)
+
+        TrialList = GetSortedTrialListCopy(TrialOrder)
 
     End Sub
 
 
-    Public Function GetNextNonCompleteStimulus() As VideoTrial
+    Public Function GetSuggestedExportFilename(ByVal OriginalDataFilepath As String) As String
 
-        Dim SelectedStimulus As VideoTrial = Nothing
+        Dim ExportFileName As String = IO.Path.Combine(IO.Path.GetDirectoryName(OriginalDataFilepath), IO.Path.GetFileNameWithoutExtension(OriginalDataFilepath) & "_Scored" & ".csv")
 
-        For n = 0 To TrialList.Count - 1
-            If TrialList(n).ShouldBeRated = True Then
-                If TrialList(n).IsRated = False Then
-                    CurrentItemIndex = n
-                    SelectedStimulus = TrialList(n)
-                    Exit For
-                End If
-            End If
-        Next
-
-        Return SelectedStimulus
+        Return ExportFileName
 
     End Function
 
-    Public Function GetPreviousTrial() As VideoTrial
+    Public Sub SaveAs(ByVal OriginalDataFilepath As String, ByVal VariableList As List(Of String), Optional ByRef ExportFile As String = "")
 
-        Dim SelectedStimulus As VideoTrial = Nothing
+        Try
 
-        If CurrentItemIndex - 1 < 0 Then
-            Return SelectedStimulus
-        End If
-
-        For n = CurrentItemIndex - 1 To 0 Step -1
-            If TrialList(n).ShouldBeRated = True Then
-                CurrentItemIndex = n
-                SelectedStimulus = TrialList(n)
-                Exit For
+            If ExportFile = "" Then
+                ExportFile = GetSuggestedExportFilename(OriginalDataFilepath)
             End If
-        Next
 
-        Return SelectedStimulus
+            Dim FileDialog As New SaveFileDialog
+            FileDialog.FileName = ExportFile
+            FileDialog.Filter = "CSV file (.csv)|*.csv"
+            FileDialog.OverwritePrompt = True
 
-    End Function
+            Dim Result = FileDialog.ShowDialog
+            If Result = DialogResult.OK Then
 
-    Public Function GetNextTrial() As VideoTrial
+                ExportFile = FileDialog.FileName
 
-        Dim SelectedStimulus As VideoTrial = Nothing
+                SaveResults(ExportFile, VariableList)
 
-        If CurrentItemIndex + 1 > TrialList.Count - 1 Then
-            Return SelectedStimulus
-        End If
-
-        For n = CurrentItemIndex + 1 To TrialList.Count - 1
-            If TrialList(n).ShouldBeRated = True Then
-                CurrentItemIndex = n
-                SelectedStimulus = TrialList(n)
-                Exit For
+            Else
+                Exit Sub
             End If
-        Next
 
-        Return SelectedStimulus
+        Catch ex As Exception
+            MsgBox("The following error occurred during save: " & vbCrLf & ex.ToString, MsgBoxStyle.Exclamation, "Error saving")
+        End Try
 
-    End Function
+    End Sub
 
-    'Public Sub SaveResults(ByVal ExportFileName As String, ByVal ParticipantID As String, ByVal ParticipantNumber As Integer)
+    Public Sub SaveResults(ByVal ExportFile As String, ByVal VariableList As List(Of String))
 
-    '    If StimulusList.Count > 0 Then
+        Try
 
-    '        Dim ExportList As New List(Of String)
 
-    '        Dim IncludeHeadings As Boolean = True
-    '        For n = 0 To StimulusList.Count - 1
-    '            ExportList.Add(StimulusList(n).ToString(IncludeHeadings, ParticipantID, ParticipantNumber))
-    '            IncludeHeadings = False
-    '        Next
+            'Trimming off file extension
+            ExportFile = IO.Path.Combine(IO.Path.GetDirectoryName(ExportFile), IO.Path.GetFileNameWithoutExtension(ExportFile))
 
-    '        'Exporting data
-    '        Utils.SendInfoToLog(String.Join(vbCrLf, ExportList), IO.Path.GetFileName(ExportFileName), IO.Path.GetDirectoryName(ExportFileName), True, True)
+            Dim ExportList As New List(Of String)
 
-    '        'MsgBox(Utils.GetGuiString(Utils.VrtGuiStringKeys.SavedToFile) & " " & ExportFileName & vbCrLf & vbCrLf & Utils.GetGuiString(Utils.VrtGuiStringKeys.CloseApp2), MsgBoxStyle.Information, My.Application.Info.Title)
+            'Exporting headings
+            Dim HeadingList As New List(Of String)
+            For Each Heading In VariableList
+                HeadingList.Add(Heading)
+            Next
+            HeadingList.Add("VideoScore")
+            ExportList.Add(String.Join(vbTab, HeadingList))
 
-    '    End If
+            Dim SortedTrialListCopy = GetSortedTrialListCopy(Trialorders.Input)
 
-    'End Sub
+            If SortedTrialListCopy.Count > 0 Then
+
+                For n = 0 To SortedTrialListCopy.Count - 1
+
+                    If SortedTrialListCopy(n).IsScored = True Then
+                        ExportList.Add(SortedTrialListCopy(n).RawData & vbTab & SortedTrialListCopy(n).GetScore)
+                    Else
+                        ExportList.Add(SortedTrialListCopy(n).RawData & vbTab & "")
+                    End If
+
+                Next
+
+                'Exporting data
+                Utils.SendInfoToLog(String.Join(vbCrLf, ExportList), IO.Path.GetFileName(ExportFile), IO.Path.GetDirectoryName(ExportFile), True, True, True, ".csv")
+
+                MsgBox("Your data was saved to the file " & ExportFile, MsgBoxStyle.Information, "Data saved")
+
+            End If
+
+        Catch ex As Exception
+            MsgBox("The following error occurred during save: " & vbCrLf & ex.ToString, MsgBoxStyle.Exclamation, "Error saving")
+        End Try
+
+
+    End Sub
 
 End Class
 
@@ -130,7 +141,7 @@ Public Class VideoTrial
 
     Public ReadOnly RawData As String = ""
 
-    Public ReadOnly ShouldBeRated As Boolean
+    Public ReadOnly ShouldBeScored As Boolean
 
     Public ReadOnly RawDataLine As Integer
 
@@ -144,10 +155,10 @@ Public Class VideoTrial
         Text
     End Enum
 
-    Public Sub New(ByVal ScoringType As ScoringTypes, ByVal ShouldBeRated As Boolean, ByVal RawData As String, ByVal CorrectVideoPath As String,
+    Public Sub New(ByVal ScoringType As ScoringTypes, ByVal ShouldBeScored As Boolean, ByVal RawData As String, ByVal CorrectVideoPath As String,
                    ByVal TrialVideoStartTime As Double, ByVal TrialVideoEndTime As Double, ByVal RawDataLine As Integer)
 
-        Me.ShouldBeRated = ShouldBeRated
+        Me.ShouldBeScored = ShouldBeScored
         Me.RawData = RawData
         Me.CorrectVideoPath = CorrectVideoPath
         Me.TrialVideoStartTime = TrialVideoStartTime
@@ -183,7 +194,7 @@ Public Class VideoTrial
 
     End Sub
 
-    Public Function IsRated() As Boolean
+    Public Function IsScored() As Boolean
 
         Select Case Question.QuestionType
             Case ScoringQuestion.QuestionTypes.Categorical
@@ -210,7 +221,7 @@ Public Class VideoTrial
     End Function
 
 
-    Public Function GetResponse() As String
+    Public Function GetScore() As String
 
         If Question.QuestionType = ScoringQuestion.QuestionTypes.Categorical Then
             If Question.CategoricalResponse <> "" Then
@@ -242,12 +253,12 @@ Public Class VideoTrial
 
         Dim OutputList As New List(Of String)
 
-        OutputList.Add(RawDataLine)
+        OutputList.Add(RawDataLine - 1)
         OutputList.Add(IO.Path.GetFileName(CorrectVideoPath))
         OutputList.Add(Math.Round(TrialVideoStartTime) & " s")
 
-        If IsRated() = True Then
-            OutputList.Add(GetResponse)
+        If IsScored() = True Then
+            OutputList.Add(GetScore)
         End If
 
         Return String.Join(", ", OutputList)

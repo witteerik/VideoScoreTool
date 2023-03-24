@@ -8,6 +8,7 @@ Imports Emgu.CV.UI
 Public Class MainForm
 
     Private CurrentDataFilePath As String = ""
+    Private CurrentExportFilePath As String = ""
     Private DataFileColumns As List(Of String)
     Private RawDataFileInputRows As List(Of String)
     Private CurrentExperimentVideoFilePath As String = ""
@@ -19,8 +20,6 @@ Public Class MainForm
     Private CurrentExperimentVideoFrameRate As Double
     Private CurrentExperimentVideoFrameInterval As Integer = 1
     Private CurrentExperimentVideoLength As Integer
-    Private CurrentExperimentVideoHeight As Integer
-    Private CurrentExperimentVideoWidth As Integer
     Private CurrentExperimentVideoStartFrame As Integer = -1
     Private CurrentExperimentVideoEndFrame As Integer = -1
     Private WithEvents ExperimentVideoFrameTimer As New Windows.Forms.Timer
@@ -29,15 +28,21 @@ Public Class MainForm
     Private CurrentCorrectVideoFrameRate As Double
     Private CurrentCorrectVideoFrameInterval As Integer = 1
     Private CurrentCorrectVideoLength As Integer
-    Private CurrentCorrectVideoHeight As Integer
-    Private CurrentCorrectVideoWidth As Integer
     Private CurrentCorrectVideoStartFrame As Integer = -1
     Private CurrentCorrectVideoEndFrame As Integer = -1
     Private WithEvents CorrectVideoFrameTimer As New Windows.Forms.Timer
 
-    Private PlaySpeed As Double = 1
+    Private FrameIntervalFactor As Double = 0.9
 
     Private WithEvents ScoringPanel As New ControlsLibrary.RatingPanel
+
+    Private SwappingTrials As Boolean = False
+
+    Private Enum NextViewSenderTypes
+        Timer
+        TrackBar
+        TrialLauncher
+    End Enum
 
 
     'Settings
@@ -68,6 +73,7 @@ Public Class MainForm
 
         Dim DataFileDialog As New OpenFileDialog
         DataFileDialog.Title = "Select a tab delimited (.csv) experiment file"
+        DataFileDialog.Filter = "CSV file (.csv)|*.csv"
         DataFileDialog.CheckPathExists = True
 
         Dim DialogResult = DataFileDialog.ShowDialog
@@ -125,9 +131,9 @@ Public Class MainForm
 
     Private Sub SelectCorrectVideosFolder_Button_Click(sender As Object, e As EventArgs) Handles SelectCorrectVideosFolder_Button.Click
 
-
         Dim DataFileDialog As New FolderBrowserDialog
         DataFileDialog.Description = "Select the folder containing the correct videos and press OK"
+        DataFileDialog.UseDescriptionForTitle = True
 
         Dim DialogResult = DataFileDialog.ShowDialog
         If DialogResult = DialogResult.OK Then
@@ -162,51 +168,6 @@ Public Class MainForm
         ExperimentVideoFile_TextBox.Text = CurrentExperimentVideoFilePath
 
     End Sub
-
-    Private Function LoadExperimentVideo(ByVal InputFile As String) As Boolean
-
-        If System.IO.File.Exists(InputFile) = False Then
-            MsgBox("The file " & InputFile & " could not be found!", MsgBoxStyle.Exclamation, "File not found!")
-            Return False
-        End If
-
-        Try
-
-            'Loading the new video
-            CurrentExperimentVideo = New Emgu.CV.VideoCapture(InputFile, VideoCapture.API.Ffmpeg)
-
-            CurrentExperimentVideoFrameRate = CurrentExperimentVideo.Get(CapProp.Fps)
-            CurrentExperimentVideoLength = CurrentExperimentVideo.Get(CapProp.FrameCount)
-            CurrentExperimentVideoWidth = CurrentExperimentVideo.Get(CapProp.FrameWidth)
-            CurrentExperimentVideoHeight = CurrentExperimentVideo.Get(CapProp.FrameHeight)
-
-            CurrentExperimentVideoFrameInterval = GetFrameInterval(CurrentExperimentVideoFrameRate)
-
-            ExperimentVideoFrameTimer.Interval = Math.Max(1, Math.Round(PlaySpeed * 1000 / (CurrentExperimentVideoFrameRate / CurrentExperimentVideoFrameInterval)))
-
-
-        Catch ex As Exception
-            MsgBox(ex.ToString)
-            Return False
-        End Try
-
-        Return True
-
-    End Function
-
-    Public Function GetFrameInterval(ByVal FrameRate As Double) As Integer
-
-        If FrameRate > 80 Then
-            Return 4
-        ElseIf FrameRate > 60 Then
-            Return 3
-        ElseIf FrameRate > 40 Then
-            Return 2
-        Else
-            Return 1
-        End If
-
-    End Function
 
     Private Sub LockSettings_Button_Click(sender As Object, e As EventArgs) Handles LockSettings_Button.Click
 
@@ -250,17 +211,17 @@ Public Class MainForm
             Dim ParsedValue2 As Double
             If Double.TryParse(Columns(TrialEndColumnComboBox.SelectedIndex).Replace(",", "."), NumberStyles.Float, CultureInfo.InvariantCulture, ParsedValue2) = True Then TrialVideoEndTime = ParsedValue2
 
-            Dim ShouldBeRated As Boolean = True
-            If CorrectVideo = "" Then ShouldBeRated = False
-            If TrialVideoStartTime = -1 Then ShouldBeRated = False
-            If TrialVideoEndTime = -1 Then ShouldBeRated = False
+            Dim ShouldBeScored As Boolean = True
+            If CorrectVideo = "" Then ShouldBeScored = False
+            If TrialVideoStartTime = -1 Then ShouldBeScored = False
+            If TrialVideoEndTime = -1 Then ShouldBeScored = False
 
             If CorrectVideo.Trim <> "" Then
                 'Trimming off everything but the file name, and adds the user supplied CorrectVideosFolder
                 CorrectVideo = IO.Path.Join(CorrectVideosFolder, IO.Path.GetFileName(CorrectVideo))
             End If
 
-            CurrentVideoTrialSet.TrialList.Add(New VideoTrial(ScoringType_ComboBox.SelectedItem, ShouldBeRated, DataRow, CorrectVideo, TrialVideoStartTime, TrialVideoEndTime, i))
+            CurrentVideoTrialSet.TrialList.Add(New VideoTrial(ScoringType_ComboBox.SelectedItem, ShouldBeScored, DataRow, CorrectVideo, TrialVideoStartTime, TrialVideoEndTime, i))
 
         Next
 
@@ -275,7 +236,7 @@ Public Class MainForm
         'Adding trials to be scored into the Trials_ListBox
         Trials_ListBox.Items.Clear()
         For i = 0 To CurrentVideoTrialSet.TrialList.Count - 1
-            If CurrentVideoTrialSet.TrialList(i).ShouldBeRated = True Then
+            If CurrentVideoTrialSet.TrialList(i).ShouldBeScored = True Then
                 Trials_ListBox.Items.Add(CurrentVideoTrialSet.TrialList(i))
             End If
         Next
@@ -293,9 +254,101 @@ Public Class MainForm
 
     End Sub
 
-    ' Scoring
+
+
+    'Video loading
+
+    Private Function LoadExperimentVideo(ByVal InputFile As String) As Boolean
+
+        If System.IO.File.Exists(InputFile) = False Then
+            MsgBox("The file " & InputFile & " could not be found!", MsgBoxStyle.Exclamation, "File not found!")
+            Return False
+        End If
+
+        Try
+
+            'Loading the new video
+            CurrentExperimentVideo = New Emgu.CV.VideoCapture(InputFile, VideoCapture.API.Ffmpeg)
+
+            CurrentExperimentVideoFrameRate = CurrentExperimentVideo.Get(CapProp.Fps)
+            CurrentExperimentVideoLength = CurrentExperimentVideo.Get(CapProp.FrameCount)
+            CurrentExperimentVideoFrameInterval = GetFrameInterval(CurrentExperimentVideoFrameRate)
+
+            ExperimentVideoFrameTimer.Interval = Math.Max(1, Math.Round(FrameIntervalFactor * 1000 / (CurrentExperimentVideoFrameRate / CurrentExperimentVideoFrameInterval)))
+
+
+        Catch ex As Exception
+            MsgBox(ex.ToString)
+            Return False
+        End Try
+
+        Return True
+
+    End Function
+
+    Private Function LoadCorrectVideo(ByVal InputFile As String) As Boolean
+
+        If System.IO.File.Exists(InputFile) = False Then
+            MsgBox("The file " & InputFile & " could not be found!", MsgBoxStyle.Exclamation, "File not found!")
+            Return False
+        End If
+
+        Try
+
+            'Loading the new video
+            CurrentCorrectVideo = New Emgu.CV.VideoCapture(InputFile, VideoCapture.API.Ffmpeg)
+
+            CurrentCorrectVideoFrameRate = CurrentCorrectVideo.Get(CapProp.Fps)
+            CurrentCorrectVideoLength = CurrentCorrectVideo.Get(CapProp.FrameCount)
+            CurrentCorrectVideoFrameInterval = GetFrameInterval(CurrentCorrectVideoFrameRate)
+
+            CorrectVideoFrameTimer.Interval = Math.Max(1, Math.Round(FrameIntervalFactor * 1000 / (CurrentCorrectVideoFrameRate / CurrentCorrectVideoFrameInterval)))
+
+        Catch ex As Exception
+            MsgBox(ex.ToString, MsgBoxStyle.Exclamation, "Error")
+            Return False
+        End Try
+
+        Return True
+
+    End Function
+
+
+    Public Function GetFrameInterval(ByVal FrameRate As Double) As Integer
+
+        If FrameRate > 80 Then
+            Return 4
+        ElseIf FrameRate > 60 Then
+            Return 3
+        ElseIf FrameRate > 40 Then
+            Return 2
+        Else
+            Return 1
+        End If
+
+    End Function
+
+    ' Scoring and trial swapping 
+
+    Private Sub Trials_ListBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Trials_ListBox.SelectedIndexChanged
+
+        Dim NewTrial = TryCast(Trials_ListBox.SelectedItem, ControlsLibrary.VideoTrial)
+        If NewTrial IsNot Nothing Then
+            ShowNewTrial(NewTrial)
+        End If
+
+    End Sub
+
 
     Private Sub ShowNewTrial(ByVal Trial As VideoTrial)
+
+        SwappingTrials = True
+
+        'Clearing the images
+        CorrectVideo_ImageBox.Image = Nothing
+        ExperimentVideo_ImageBox.Image = Nothing
+        CorrectVideo_ImageBox.Update()
+        ExperimentVideo_ImageBox.Update()
 
         'Loading correct video
         If LoadCorrectVideo(Trial.CorrectVideoPath) = False Then
@@ -324,6 +377,21 @@ Public Class MainForm
         ScoringPanel.Controls.Clear()
         ScoringPanel.AddQuestion(Trial)
 
+        SwappingTrials = False
+
+        Try
+            CurrentCorrectVideo.Set(CapProp.PosFrames, 0)
+            CurrentExperimentVideo.Set(CapProp.PosFrames, CurrentExperimentVideoStartFrame)
+        Catch ex As Exception
+            'ignoring any error here
+        End Try
+
+        CorrectVideo_TrackBar.Value = 0
+        ExperimentVideo_TrackBar.Value = 0
+
+        ViewNextCorrectVideoFrame(NextViewSenderTypes.TrialLauncher)
+        ViewNextExperimentVideoFrame(NextViewSenderTypes.TrialLauncher)
+
         CorrectVideo_PlayButton.Enabled = True
         ExperimentVideo_PlayButton.Enabled = True
 
@@ -337,39 +405,63 @@ Public Class MainForm
 
     End Sub
 
-    Private Function LoadCorrectVideo(ByVal InputFile As String) As Boolean
 
-        If System.IO.File.Exists(InputFile) = False Then
-            MsgBox("The file " & InputFile & " could not be found!", MsgBoxStyle.Exclamation, "File not found!")
-            Return False
+    Private Sub Next_Button_Click(sender As Object, e As EventArgs) Handles Next_Button.Click
+
+        If SwappingTrials = True Then Exit Sub
+
+        If Trials_ListBox.SelectedIndex = Trials_ListBox.Items.Count - 1 Then
+            MsgBox("You allready display the last trial!", MsgBoxStyle.Information, "Video Score Tool")
+            Exit Sub
+        Else
+            Trials_ListBox.SelectedIndex += 1
         End If
 
-        Try
+    End Sub
 
-            'Loading the new video
-            CurrentCorrectVideo = New Emgu.CV.VideoCapture(InputFile, VideoCapture.API.Ffmpeg)
+    Private Sub Previous_Button_Click(sender As Object, e As EventArgs) Handles Previous_Button.Click
 
-            CurrentCorrectVideoFrameRate = CurrentCorrectVideo.Get(CapProp.Fps)
-            CurrentCorrectVideoLength = CurrentCorrectVideo.Get(CapProp.FrameCount)
-            CurrentCorrectVideoWidth = CurrentCorrectVideo.Get(CapProp.FrameWidth)
-            CurrentCorrectVideoHeight = CurrentCorrectVideo.Get(CapProp.FrameHeight)
+        If SwappingTrials = True Then Exit Sub
 
-            CurrentCorrectVideoFrameInterval = GetFrameInterval(CurrentCorrectVideoFrameRate)
+        If Trials_ListBox.SelectedIndex = 0 Then
+            MsgBox("You allready display the first trial!", MsgBoxStyle.Information, "Video Score Tool")
+            Exit Sub
+        Else
+            Trials_ListBox.SelectedIndex -= 1
+        End If
 
-            CorrectVideoFrameTimer.Interval = Math.Max(1, Math.Round(PlaySpeed * 1000 / (CurrentCorrectVideoFrameRate / CurrentCorrectVideoFrameInterval)))
+    End Sub
 
-        Catch ex As Exception
-            MsgBox(ex.ToString, MsgBoxStyle.Exclamation, "Error")
-            Return False
-        End Try
+    Private Sub FirstUnscored_Button_Click(sender As Object, e As EventArgs) Handles FirstUnscored_Button.Click
 
-        Return True
+        If SwappingTrials = True Then Exit Sub
 
-    End Function
+        'Selecting the trial in the Trials_ListBox
+        For i = 0 To Trials_ListBox.Items.Count - 1
+            Dim CastItem = TryCast(Trials_ListBox.Items(i), ControlsLibrary.VideoTrial)
+            If CastItem IsNot Nothing Then
+                If CastItem.ShouldBeScored = True Then
+                    If CastItem.IsScored = False Then
+                        Trials_ListBox.SelectedIndex = i
+                        Exit Sub
+                    End If
+                End If
+            End If
+        Next
+
+        MsgBox("No more unscored trials to show", MsgBoxStyle.Information, "Video Score Tool")
+
+    End Sub
 
 
-    'Play
+
+    'Video viewing and playback
+
     Private Sub CorrectVideo_TrackBar_ValueChanged(sender As Object, e As EventArgs) Handles CorrectVideo_TrackBar.ValueChanged
+
+        If SwappingTrials = True Then Exit Sub
+        If CurrentCorrectVideo Is Nothing Then Exit Sub
+        If CorrectVideoFrameTimer.Enabled = True Then Exit Sub
 
         If CurrentCorrectVideo IsNot Nothing Then
 
@@ -380,21 +472,25 @@ Public Class MainForm
                 Exit Sub
             End If
 
-            ViewNextCorrectVideoFrame()
+            ViewNextCorrectVideoFrame(NextViewSenderTypes.TrackBar)
 
         End If
 
     End Sub
 
-    Private Sub ViewNextCorrectVideoFrame()
+    Private Sub ViewNextCorrectVideoFrame(ByVal SenderType As NextViewSenderTypes)
+
+        If SwappingTrials = True Then Exit Sub
 
         Dim CurrentPosition = CurrentCorrectVideo.Get(CapProp.PosFrames)
-        If CurrentPosition Mod CurrentCorrectVideoFrameInterval <> 0 Then
-            CurrentCorrectVideo.Set(CapProp.PosFrames, CurrentPosition + (CurrentCorrectVideoFrameInterval - 1))
+        If SenderType = NextViewSenderTypes.Timer Then
+            If CurrentPosition Mod CurrentCorrectVideoFrameInterval <> 0 Then
+                CurrentCorrectVideo.Set(CapProp.PosFrames, CurrentPosition + (CurrentCorrectVideoFrameInterval - 1))
+            End If
+            CurrentPosition = CurrentCorrectVideo.Get(CapProp.PosFrames)
         End If
-        CurrentPosition = CurrentCorrectVideo.Get(CapProp.PosFrames)
 
-        If CurrentPosition < CurrentCorrectVideo.Get(CapProp.FrameCount) Then
+        If CurrentPosition < CurrentCorrectVideo.Get(CapProp.FrameCount) - 1 Then
 
             Dim CurrentImage As Image(Of Bgr, Byte)
 
@@ -408,36 +504,53 @@ Public Class MainForm
             CorrectVideo_ImageBox.Image = CurrentImage
             CorrectVideo_ImageBox.Update()
 
+            CorrectVideo_TrackBar.Value = CurrentPosition
+
+        Else
+
+            CorrectVideo_ImageBox.Image = Nothing
+            CorrectVideo_ImageBox.Update()
+
         End If
 
     End Sub
 
     Private Sub ExperimentVideo_TrackBar_ValueChanged(sender As Object, e As EventArgs) Handles ExperimentVideo_TrackBar.ValueChanged
 
+        If SwappingTrials = True Then Exit Sub
+        If CurrentExperimentVideo Is Nothing Then Exit Sub
+        If ExperimentVideoFrameTimer.Enabled = True Then Exit Sub
+
         If CurrentExperimentVideo IsNot Nothing Then
 
+            Dim VideoPositionToSet = ExperimentVideo_TrackBar.Value + CurrentExperimentVideoStartFrame
+
             'Getting the index of the frame to display
-            If ExperimentVideo_TrackBar.Value < CurrentExperimentVideo.Get(CapProp.FrameCount) Then
-                CurrentExperimentVideo.Set(CapProp.PosFrames, ExperimentVideo_TrackBar.Value)
+            If VideoPositionToSet < CurrentExperimentVideo.Get(CapProp.FrameCount) Then
+                CurrentExperimentVideo.Set(CapProp.PosFrames, VideoPositionToSet)
             Else
                 Exit Sub
             End If
 
-            ViewNextExperimentVideoFrame()
+            ViewNextExperimentVideoFrame(NextViewSenderTypes.TrackBar)
 
         End If
 
     End Sub
 
-    Private Sub ViewNextExperimentVideoFrame()
 
-        Dim CurrentPosition = CurrentExperimentVideo.Get(CapProp.PosFrames)
-        If CurrentPosition Mod CurrentExperimentVideoFrameInterval <> 0 Then
-            CurrentExperimentVideo.Set(CapProp.PosFrames, CurrentPosition + (CurrentExperimentVideoFrameInterval - 1))
+    Private Sub ViewNextExperimentVideoFrame(ByVal SenderType As NextViewSenderTypes)
+
+        If SwappingTrials = True Then Exit Sub
+        Dim CurrentVideoPosition = CurrentExperimentVideo.Get(CapProp.PosFrames)
+        If SenderType = NextViewSenderTypes.Timer Then
+            If CurrentVideoPosition Mod CurrentExperimentVideoFrameInterval <> 0 Then
+                CurrentExperimentVideo.Set(CapProp.PosFrames, CurrentVideoPosition + (CurrentExperimentVideoFrameInterval - 1))
+            End If
+            CurrentVideoPosition = CurrentExperimentVideo.Get(CapProp.PosFrames)
         End If
-        CurrentPosition = CurrentExperimentVideo.Get(CapProp.PosFrames)
 
-        If CurrentPosition < CurrentExperimentVideo.Get(CapProp.FrameCount) Then
+        If CurrentVideoPosition < CurrentExperimentVideo.Get(CapProp.FrameCount) - 1 Then
 
             Dim CurrentImage As Image(Of Bgr, Byte)
 
@@ -451,51 +564,20 @@ Public Class MainForm
             ExperimentVideo_ImageBox.Image = CurrentImage
             ExperimentVideo_ImageBox.Update()
 
-        End If
-    End Sub
+            Dim TrackBarPositionToSet = CurrentVideoPosition - CurrentExperimentVideoStartFrame
 
-    Private Sub Next_Button_Click(sender As Object, e As EventArgs) Handles Next_Button.Click
+            ExperimentVideo_TrackBar.Value = Math.Min(Math.Max(0, TrackBarPositionToSet), ExperimentVideo_TrackBar.Maximum)
 
-        If Trials_ListBox.SelectedIndex = Trials_ListBox.Items.Count - 1 Then
-            MsgBox("You allready display the last trial!", MsgBoxStyle.Information, "Video Score Tool")
-            Exit Sub
         Else
-            Trials_ListBox.SelectedIndex += 1
+            ExperimentVideo_ImageBox.Image = Nothing
+            ExperimentVideo_ImageBox.Update()
         End If
-
-    End Sub
-
-    Private Sub Previous_Button_Click(sender As Object, e As EventArgs) Handles Previous_Button.Click
-
-        If Trials_ListBox.SelectedIndex = 0 Then
-            MsgBox("You allready display the first trial!", MsgBoxStyle.Information, "Video Score Tool")
-            Exit Sub
-        Else
-            Trials_ListBox.SelectedIndex -= 1
-        End If
-
-    End Sub
-
-    Private Sub FirstUnscored_Button_Click(sender As Object, e As EventArgs) Handles FirstUnscored_Button.Click
-
-        'Selecting the trial in the Trials_ListBox
-        For i = 0 To Trials_ListBox.Items.Count - 1
-            Dim CastItem = TryCast(Trials_ListBox.Items(i), ControlsLibrary.VideoTrial)
-            If CastItem IsNot Nothing Then
-                If CastItem.ShouldBeRated = True Then
-                    If CastItem.IsRated = False Then
-                        Trials_ListBox.SelectedIndex = i
-                        Exit Sub
-                    End If
-                End If
-            End If
-        Next
-
-        MsgBox("No more unscored trials to show", MsgBoxStyle.Information, "Video Score Tool")
-
     End Sub
 
     Private Sub CorrectVideo_PlayButton_Click(sender As Object, e As EventArgs) Handles CorrectVideo_PlayButton.Click
+
+        If SwappingTrials = True Then Exit Sub
+
         If CorrectVideo_PlayButton.ViewMode = PlayButton.ViewModes.Play Then
             PlayCorrectVideo()
         Else
@@ -518,6 +600,9 @@ Public Class MainForm
     End Sub
 
     Private Sub ExperimentVideo_PlayButton_Click(sender As Object, e As EventArgs) Handles ExperimentVideo_PlayButton.Click
+
+        If SwappingTrials = True Then Exit Sub
+
         ExperimentVideoFrameTimer.Stop()
         If ExperimentVideo_PlayButton.ViewMode = PlayButton.ViewModes.Play Then
             PlayExperimentVideo()
@@ -540,19 +625,21 @@ Public Class MainForm
 
     Private Sub CorrectVideoFrameTimer_Tick() Handles CorrectVideoFrameTimer.Tick
 
+        If SwappingTrials = True Then Exit Sub
+
         If CurrentCorrectVideo.Get(CapProp.PosFrames) >= CurrentCorrectVideoEndFrame Then
             'Stopping timer
             CorrectVideoFrameTimer.Stop()
             CorrectVideo_PlayButton.ViewMode = PlayButton.ViewModes.Play
 
-            'Starting expeiment video if its CheckBox is ticked
+            'Starting experiment video if its CheckBox is ticked
             If ExperimentVideoAutoplay_CheckBox.Checked = True Then
                 PlayExperimentVideo()
             End If
 
         Else
 
-            ViewNextCorrectVideoFrame()
+            ViewNextCorrectVideoFrame(NextViewSenderTypes.Timer)
 
             'Showing next frame
             'CorrectVideo_TrackBar.Value += 1
@@ -563,13 +650,15 @@ Public Class MainForm
 
     Private Sub ExperimentVideoFrameTimer_Tick() Handles ExperimentVideoFrameTimer.Tick
 
+        If SwappingTrials = True Then Exit Sub
+
         If CurrentExperimentVideo.Get(CapProp.PosFrames) >= CurrentExperimentVideoEndFrame Then
             'Stopping timer
             ExperimentVideoFrameTimer.Stop()
             ExperimentVideo_PlayButton.ViewMode = PlayButton.ViewModes.Play
         Else
 
-            ViewNextExperimentVideoFrame()
+            ViewNextExperimentVideoFrame(NextViewSenderTypes.Timer)
 
             'Showing next frame
             'ExperimentVideo_TrackBar.Value += 1
@@ -577,11 +666,68 @@ Public Class MainForm
 
     End Sub
 
-    Private Sub Trials_ListBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Trials_ListBox.SelectedIndexChanged
+    ' Saving
+    Private Sub Save_Button_Click(sender As Object, e As EventArgs) Handles Save_Button.Click
 
-        Dim NewTrial = TryCast(Trials_ListBox.SelectedItem, ControlsLibrary.VideoTrial)
-        If NewTrial IsNot Nothing Then
-            ShowNewTrial(NewTrial)
+        If CurrentExportFilePath = "" Then
+            CurrentVideoTrialSet.SaveAs(CurrentDataFilePath, DataFileColumns, CurrentExportFilePath)
+        Else
+            CurrentVideoTrialSet.SaveResults(CurrentExportFilePath, DataFileColumns)
+        End If
+
+    End Sub
+
+    Private Sub SaveAs_Button_Click(sender As Object, e As EventArgs) Handles SaveAs_Button.Click
+
+        CurrentVideoTrialSet.SaveAs(CurrentDataFilePath, DataFileColumns, CurrentExportFilePath)
+
+    End Sub
+
+    Private Sub NewDataFile_Button_Click(sender As Object, e As EventArgs) Handles NewDataFile_Button.Click
+
+        Dim Result = MsgBox("Make sure you have saved all data before continuing! Do you want to continue?", MsgBoxStyle.YesNo, "All non-saved data will be removed!")
+        If Result = MsgBoxResult.Yes Then
+
+            'Resetting things
+
+            CorrectVideoFrameTimer.Stop()
+            ExperimentVideoFrameTimer.Stop()
+
+            WorkFlow_TableLayoutPanel.Enabled = False
+            CurrentDataFilePath = ""
+            CurrentExportFilePath = ""
+            DataFileColumns = New List(Of String)
+            RawDataFileInputRows = New List(Of String)
+            CurrentExperimentVideoFilePath = ""
+
+            DataFile_TextBox.Text = ""
+            CorrectVideosFolder_TextBox.Text = ""
+            ExperimentVideoFile_TextBox.Text = ""
+
+            CorrectVideoColumn_ComboBox.Items.Clear()
+            TrialStartColumn_ComboBox.Items.Clear()
+            TrialEndColumnComboBox.Items.Clear()
+
+            CorrectVideo_ImageBox.Image = Nothing
+            ExperimentVideo_ImageBox.Image = Nothing
+            CorrectVideo_ImageBox.Update()
+            ExperimentVideo_ImageBox.Update()
+
+            Trials_ListBox.Items.Clear()
+            ScoringPanel.Controls.Clear()
+
+            CurrentExperimentVideo = Nothing
+            CurrentCorrectVideo = Nothing
+
+            CorrectVideo_TrackBar.Maximum = 10
+            ExperimentVideo_TrackBar.Maximum = 10
+
+            CorrectVideo_TrackBar.Value = 0
+            ExperimentVideo_TrackBar.Value = 0
+
+            CurrentVideoTrialSet = Nothing
+            Settings_GroupBox.Enabled = True
+
         End If
 
     End Sub

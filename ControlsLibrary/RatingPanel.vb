@@ -19,7 +19,7 @@ Public Class RatingPanel
         Dim RandomColorSource = New Random(1)
 
         Me.Visible = False
-        Me.Padding = New Padding(10)
+        'Me.Padding = New Padding(10)
 
         Me.RowStyles.Clear()
         Dim NewItemRatingPanel As New RatingQuestionPanel(2, RandomColorSource)
@@ -44,7 +44,7 @@ Public Class RatingPanel
     Public Sub ResponseGivenHandler()
 
         'Checks if all items have responses
-        If CurrentRatingStimulus.IsRated = True Then
+        If CurrentRatingStimulus.IsScored = True Then
             RaiseEvent ResponseGiven()
         End If
 
@@ -119,7 +119,7 @@ Public Class RatingQuestionPanel
         QuestionTextBox.Font = New Font(QuestionTextBox.Font.FontFamily, QuestionTextBox.Font.Size + FontIncrease)
         QuestionTextBox.Width = Parent.ClientRectangle.Width
         QuestionTextBox.AutoSize = True
-        QuestionTextBox.Padding = New Padding(5)
+        'QuestionTextBox.Padding = New Padding(5)
         QuestionTextBox.BackColor = Color.Transparent
 
         Me.Controls.Add(QuestionTextBox)

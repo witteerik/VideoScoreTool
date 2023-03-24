@@ -16,7 +16,8 @@ Namespace Utils
                                  Optional ByVal LogFileTemporaryPath As String = "",
                                  Optional ByVal OmitDateInsideLog As Boolean = False,
                                  Optional ByVal OmitDateInFileName As Boolean = False,
-                                 Optional ByVal OverWrite As Boolean = False)
+                                 Optional ByVal OverWrite As Boolean = False,
+                                 Optional ByVal FileNameExtension As String = ".txt")
 
             Dim SpinLockTaken As Boolean = False
 
@@ -31,15 +32,15 @@ Namespace Utils
 
                 If OmitDateInFileName = False Then
                     If LogFileNameWithoutExtension = "" Then
-                        FileNameToUse = "log-" & DateTime.Now.ToShortDateString.Replace("/", "-") & ".txt"
+                        FileNameToUse = "log-" & DateTime.Now.ToShortDateString.Replace("/", "-") & FileNameExtension
                     Else
-                        FileNameToUse = LogFileNameWithoutExtension & "-" & DateTime.Now.ToShortDateString.Replace("/", "-") & ".txt"
+                        FileNameToUse = LogFileNameWithoutExtension & "-" & DateTime.Now.ToShortDateString.Replace("/", "-") & FileNameExtension
                     End If
                 Else
                     If LogFileNameWithoutExtension = "" Then
-                        FileNameToUse = "LDT_log.txt"
+                        FileNameToUse = "LDT_log" & FileNameExtension
                     Else
-                        FileNameToUse = LogFileNameWithoutExtension & ".txt"
+                        FileNameToUse = LogFileNameWithoutExtension & FileNameExtension
                     End If
 
                 End If
@@ -73,7 +74,7 @@ Namespace Utils
                     Writer.Close()
 
                 Catch ex As Exception
-                    Errors(ex.ToString, "Error saving to log file!")
+                    Errors(ex.ToString, "Error saving to file!")
                 End Try
 
             Finally
