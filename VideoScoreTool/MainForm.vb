@@ -34,7 +34,7 @@ Public Class MainForm
 
     Private FrameIntervalFactor As Double = 0.9
 
-    Private WithEvents ScoringPanel As New ControlsLibrary.RatingPanel
+    Private WithEvents ScoringPanel As New ControlsLibrary.ScoringQuestionPanel
 
     Private SwappingTrials As Boolean = False
 
@@ -63,7 +63,7 @@ Public Class MainForm
         ScoringType_ComboBox.SelectedIndex = 0
 
         'Creating and adding the scoring panel
-        ScoringPanel = New ControlsLibrary.RatingPanel
+        ScoringPanel = New ControlsLibrary.ScoringQuestionPanel
         ScoringPanel.Dock = DockStyle.Fill
         ScoringPanelHolder_Panel.Controls.Add(ScoringPanel)
 
@@ -330,9 +330,24 @@ Public Class MainForm
 
     ' Scoring and trial swapping 
 
+    Dim UpdatingListBoxItems As Boolean = False
+
     Private Sub Trials_ListBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Trials_ListBox.SelectedIndexChanged
 
+        If UpdatingListBoxItems = True Then Exit Sub
+
+        'gets the selected item
         Dim NewTrial = TryCast(Trials_ListBox.SelectedItem, ControlsLibrary.VideoTrial)
+
+        UpdatingListBoxItems = True
+
+        'Updating items (to get the correct ToString() representation) (See https://stackoverflow.com/questions/33175381/how-we-can-refresh-items-text-in-listbox-without-reinserting-it for this smart idea!
+        For i = 0 To Trials_ListBox.Items.Count - 1
+            Trials_ListBox.Items(i) = Trials_ListBox.Items(i)
+        Next
+        UpdatingListBoxItems = False
+
+        'Showing the new item
         If NewTrial IsNot Nothing Then
             ShowNewTrial(NewTrial)
         End If
@@ -375,7 +390,8 @@ Public Class MainForm
 
         'Adding question
         ScoringPanel.Controls.Clear()
-        ScoringPanel.AddQuestion(Trial)
+        ScoringPanel.AddQuestion(Trial.Question)
+        ScoringPanel.ResizeNow()
 
         SwappingTrials = False
 
@@ -685,7 +701,7 @@ Public Class MainForm
 
     Private Sub NewDataFile_Button_Click(sender As Object, e As EventArgs) Handles NewDataFile_Button.Click
 
-        Dim Result = MsgBox("Make sure you have saved all data before continuing! Do you want to continue?", MsgBoxStyle.YesNo, "All non-saved data will be removed!")
+        Dim Result = MsgBox("Make sure you have saved all data before continuing! Do you want to continue?", MsgBoxStyle.YesNo, "All non-saved data will be lost!")
         If Result = MsgBoxResult.Yes Then
 
             'Resetting things
@@ -703,6 +719,10 @@ Public Class MainForm
             DataFile_TextBox.Text = ""
             CorrectVideosFolder_TextBox.Text = ""
             ExperimentVideoFile_TextBox.Text = ""
+
+            CorrectVideoColumn_ComboBox.SelectedItem = Nothing
+            TrialStartColumn_ComboBox.SelectedItem = Nothing
+            TrialEndColumnComboBox.SelectedItem = Nothing
 
             CorrectVideoColumn_ComboBox.Items.Clear()
             TrialStartColumn_ComboBox.Items.Clear()
@@ -731,4 +751,16 @@ Public Class MainForm
         End If
 
     End Sub
+
+    'Resizing
+
+    Private Sub MainForm_Resize(sender As Object, e As EventArgs) Handles MyBase.Resize
+
+        If ScoringPanel IsNot Nothing Then
+            ScoringPanel.ResizeNow()
+        End If
+
+    End Sub
+
+
 End Class

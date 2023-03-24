@@ -4,7 +4,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
 Imports System.IO
 
 <Serializable>
-Public Class RatingPanel
+Public Class ScoringPanel
     Inherits TableLayoutPanel
 
     Public CurrentRatingStimulus As VideoTrial
@@ -19,10 +19,9 @@ Public Class RatingPanel
         Dim RandomColorSource = New Random(1)
 
         Me.Visible = False
-        'Me.Padding = New Padding(10)
 
         Me.RowStyles.Clear()
-        Dim NewItemRatingPanel As New RatingQuestionPanel(2, RandomColorSource)
+        Dim NewItemRatingPanel As New ScoringQuestionPanel(2, RandomColorSource)
         AddHandler NewItemRatingPanel.ResponseGiven, AddressOf ResponseGivenHandler
         AddHandler NewItemRatingPanel.ResponseRemoved, AddressOf ResponseRemovedHandler
         Me.Controls.Add(NewItemRatingPanel)
@@ -81,7 +80,7 @@ Public Class ScoringQuestion
 End Class
 
 <Serializable>
-Public Class RatingQuestionPanel
+Public Class ScoringQuestionPanel
     Inherits FlowLayoutPanel
 
     Public WithEvents ItemResponseInterface As IRatingResponse

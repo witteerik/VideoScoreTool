@@ -114,12 +114,13 @@
 
                 Next
 
-                'Exporting data
-                Utils.SendInfoToLog(String.Join(vbCrLf, ExportList), IO.Path.GetFileName(ExportFile), IO.Path.GetDirectoryName(ExportFile), True, True, True, ".csv")
-
-                MsgBox("Your data was saved to the file " & ExportFile, MsgBoxStyle.Information, "Data saved")
-
             End If
+
+            'Exporting data
+            Utils.SendInfoToLog(String.Join(vbCrLf, ExportList), IO.Path.GetFileName(ExportFile), IO.Path.GetDirectoryName(ExportFile), True, True, True, ".csv")
+
+            MsgBox("Your data was saved to the file " & ExportFile & ".csv", MsgBoxStyle.Information, "Data saved")
+
 
         Catch ex As Exception
             MsgBox("The following error occurred during save: " & vbCrLf & ex.ToString, MsgBoxStyle.Exclamation, "Error saving")
