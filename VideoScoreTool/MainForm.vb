@@ -24,6 +24,8 @@ Public Class MainForm
     Private CurrentExperimentVideoEndFrame As Integer = -1
     Private WithEvents ExperimentVideoFrameTimer As New Windows.Forms.Timer
 
+    Private ExpVideoSyncTime As Double
+
     Private WithEvents CurrentCorrectVideo As VideoCapture = Nothing
     Private CurrentCorrectVideoFrameRate As Double
     Private CurrentCorrectVideoFrameInterval As Integer = 1
@@ -35,6 +37,7 @@ Public Class MainForm
     Private FrameIntervalFactor As Double = 0.9
 
     Private WithEvents ScoringPanel As New ControlsLibrary.ScoringQuestionPanel
+    Private SyncTime_TextBox As ControlsLibrary.DoubleParsingTextBox
 
     Private SwappingTrials As Boolean = False
 
@@ -66,6 +69,18 @@ Public Class MainForm
         ScoringPanel = New ControlsLibrary.ScoringQuestionPanel
         ScoringPanel.Dock = DockStyle.Fill
         ScoringPanelHolder_Panel.Controls.Add(ScoringPanel)
+
+        SyncTime_TextBox = New DoubleParsingTextBox
+        SyncTime_TextBox.Dock = DockStyle.Fill
+        SyncTimeInputBoxHolder_Panel.Controls.Add(SyncTime_TextBox)
+
+        For Value As Double = 15.0R To -15.0R Step -1.0R
+            AdjustStart_ComboBox.Items.Add(Value)
+            AdjustEnd_ComboBox.Items.Add(Value)
+        Next
+        AdjustStart_ComboBox.SelectedIndex = 15
+        AdjustEnd_ComboBox.SelectedIndex = 15
+
 
     End Sub
 
@@ -193,6 +208,14 @@ Public Class MainForm
             Exit Sub
         End If
 
+        If SyncTime_TextBox.Value Is Nothing Then
+            MsgBox("You must supply a sync time! This is the duration in seconds into the experiment video film until the syncronization was done (for example a filmed click on a syncronization button in the testing software used). ", MsgBoxStyle.Exclamation, "Add additional info")
+            Exit Sub
+        End If
+
+        'Storing the sync time
+        ExpVideoSyncTime = SyncTime_TextBox.Value
+
         'Attemtping to create trials
         CurrentVideoTrialSet = New VideoTrialSet
 
@@ -230,8 +253,9 @@ Public Class MainForm
         'Disabling the Settings_GroupBox
         Settings_GroupBox.Enabled = False
 
-        'Setting trial order
-        CurrentVideoTrialSet.SetTrialOrder(TrialOrder_ComboBox.SelectedItem)
+        'Setting trial order (the default id to first randomize trials, and then set them in aphabetic order, which will then be randomized within trials with the same stimuli)
+        CurrentVideoTrialSet.SetTrialOrder(ControlsLibrary.VideoTrialSet.Trialorders.Random)
+        CurrentVideoTrialSet.SetTrialOrder(ControlsLibrary.VideoTrialSet.Trialorders.Alphabetic)
 
         'Adding trials to be scored into the Trials_ListBox
         Trials_ListBox.Items.Clear()
@@ -330,9 +354,47 @@ Public Class MainForm
 
     ' Scoring and trial swapping 
 
+    'Shifting randomization order
+    Private Sub TrialOrder_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles TrialOrder_ComboBox.SelectedIndexChanged
+
+        'UpdatingListBoxItems = True
+
+        If CurrentVideoTrialSet Is Nothing Then Exit Sub
+
+        Trials_ListBox.Items.Clear()
+
+        CurrentVideoTrialSet.SetTrialOrder(TrialOrder_ComboBox.SelectedItem)
+
+        'Adding trials to be scored into the Trials_ListBox
+        For i = 0 To CurrentVideoTrialSet.TrialList.Count - 1
+            If CurrentVideoTrialSet.TrialList(i).ShouldBeScored = True Then
+                Trials_ListBox.Items.Add(CurrentVideoTrialSet.TrialList(i))
+            End If
+        Next
+
+        'UpdatingListBoxItems = False
+
+        If Trials_ListBox.Items.Count > 0 Then Trials_ListBox.SelectedIndex = 0
+
+    End Sub
+
+    Private Sub AdjustTime_ComboBoxs_SelectedIndexChanged(sender As Object, e As EventArgs) Handles AdjustStart_ComboBox.SelectedIndexChanged, AdjustEnd_ComboBox.SelectedIndexChanged
+
+        'Reloads the trial by selecting the already selected trial in the Trials_ListBox
+        Dim CurrentIndex = Trials_ListBox.SelectedIndex
+        If Trials_ListBox.Items.Count > 0 Then
+            Trials_ListBox.SelectedIndex = -1
+            Trials_ListBox.SelectedIndex = CurrentIndex
+        End If
+
+    End Sub
+
+
     Dim UpdatingListBoxItems As Boolean = False
 
     Private Sub Trials_ListBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Trials_ListBox.SelectedIndexChanged
+
+        If Trials_ListBox.SelectedIndex = -1 Then Exit Sub
 
         If UpdatingListBoxItems = True Then Exit Sub
 
@@ -357,6 +419,12 @@ Public Class MainForm
 
     Private Sub ShowNewTrial(ByVal Trial As VideoTrial)
 
+        'Stopping timers and resetting play buttons
+        CorrectVideoFrameTimer.Stop()
+        ExperimentVideoFrameTimer.Stop()
+        CorrectVideo_PlayButton.ViewMode = PlayButton.ViewModes.Play
+        ExperimentVideo_PlayButton.ViewMode = PlayButton.ViewModes.Play
+
         SwappingTrials = True
 
         'Clearing the images
@@ -377,8 +445,8 @@ Public Class MainForm
         CorrectVideo_TrackBar.Minimum = 0
         CorrectVideo_TrackBar.Maximum = CurrentCorrectVideoEndFrame
 
-        CurrentExperimentVideoStartFrame = Math.Min(CurrentExperimentVideoLength - 1, Math.Max(0, Math.Floor(Trial.TrialVideoStartTime * CurrentExperimentVideoFrameRate)))
-        CurrentExperimentVideoEndFrame = Math.Min(CurrentExperimentVideoLength - 1, Math.Max(0, Math.Ceiling(Trial.TrialVideoEndTime * CurrentExperimentVideoFrameRate)))
+        CurrentExperimentVideoStartFrame = Math.Min(CurrentExperimentVideoLength - 1, Math.Max(0, Math.Floor((Trial.TrialVideoStartTime + ExpVideoSyncTime + AdjustStart_ComboBox.SelectedItem) * CurrentExperimentVideoFrameRate)))
+        CurrentExperimentVideoEndFrame = Math.Min(CurrentExperimentVideoLength - 1, Math.Max(0, Math.Ceiling((Trial.TrialVideoEndTime + ExpVideoSyncTime + AdjustEnd_ComboBox.SelectedItem) * CurrentExperimentVideoFrameRate)))
 
         'Warns if time is outside of video length
         If CurrentExperimentVideoLength < Math.Floor(Trial.TrialVideoStartTime * CurrentExperimentVideoFrameRate) Then
@@ -767,4 +835,6 @@ Public Class MainForm
     Private Sub AboutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AboutToolStripMenuItem.Click
         AboutBox1.ShowDialog()
     End Sub
+
+
 End Class

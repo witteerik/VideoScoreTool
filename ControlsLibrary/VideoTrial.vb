@@ -256,7 +256,7 @@ Public Class VideoTrial
 
         OutputList.Add(RawDataLine - 1)
         OutputList.Add(IO.Path.GetFileName(CorrectVideoPath))
-        OutputList.Add(Math.Round(TrialVideoStartTime) & " s")
+        OutputList.Add(Math.Round(TrialVideoStartTime, 3) & " s")
 
         If IsScored() = True Then
             OutputList.Add(GetScore)

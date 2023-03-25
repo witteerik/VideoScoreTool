@@ -35,19 +35,28 @@ Partial Class MainForm
         Me.CorrectVideo_TrackBar = New System.Windows.Forms.TrackBar()
         Me.CorrectVideoAutoplay_CheckBox = New System.Windows.Forms.CheckBox()
         Me.GroupBox4 = New System.Windows.Forms.GroupBox()
+        Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
         Me.Trials_ListBox = New System.Windows.Forms.ListBox()
+        Me.TrialOrder_ComboBox = New System.Windows.Forms.ComboBox()
+        Me.Label5 = New System.Windows.Forms.Label()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
         Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
+        Me.AdjustEnd_ComboBox = New System.Windows.Forms.ComboBox()
         Me.ExperimentVideo_ImageBox = New Emgu.CV.UI.ImageBox()
         Me.ExperimentVideo_PlayButton = New ControlsLibrary.PlayButton()
         Me.ExperimentVideo_TrackBar = New System.Windows.Forms.TrackBar()
         Me.ExperimentVideoAutoplay_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.Label10 = New System.Windows.Forms.Label()
+        Me.Label11 = New System.Windows.Forms.Label()
+        Me.AdjustStart_ComboBox = New System.Windows.Forms.ComboBox()
         Me.TableLayoutPanel2 = New System.Windows.Forms.TableLayoutPanel()
         Me.Previous_Button = New System.Windows.Forms.Button()
         Me.FirstUnscored_Button = New System.Windows.Forms.Button()
         Me.Next_Button = New System.Windows.Forms.Button()
         Me.ScoringPanelHolder_Panel = New System.Windows.Forms.Panel()
         Me.Settings_GroupBox = New System.Windows.Forms.GroupBox()
+        Me.SyncTimeInputBoxHolder_Panel = New System.Windows.Forms.Panel()
+        Me.Label9 = New System.Windows.Forms.Label()
         Me.SelectCorrectVideosFolder_Button = New System.Windows.Forms.Button()
         Me.CorrectVideosFolder_TextBox = New System.Windows.Forms.TextBox()
         Me.Label8 = New System.Windows.Forms.Label()
@@ -57,8 +66,6 @@ Partial Class MainForm
         Me.LockSettings_Button = New System.Windows.Forms.Button()
         Me.ScoringType_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Label6 = New System.Windows.Forms.Label()
-        Me.TrialOrder_ComboBox = New System.Windows.Forms.ComboBox()
-        Me.Label5 = New System.Windows.Forms.Label()
         Me.TrialEndColumnComboBox = New System.Windows.Forms.ComboBox()
         Me.TrialStartColumn_ComboBox = New System.Windows.Forms.ComboBox()
         Me.CorrectVideoColumn_ComboBox = New System.Windows.Forms.ComboBox()
@@ -78,6 +85,7 @@ Partial Class MainForm
         CType(Me.CorrectVideo_ImageBox, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.CorrectVideo_TrackBar, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBox4.SuspendLayout()
+        Me.TableLayoutPanel1.SuspendLayout()
         Me.GroupBox3.SuspendLayout()
         Me.TableLayoutPanel3.SuspendLayout()
         CType(Me.ExperimentVideo_ImageBox, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -233,7 +241,7 @@ Partial Class MainForm
         '
         'GroupBox4
         '
-        Me.GroupBox4.Controls.Add(Me.Trials_ListBox)
+        Me.GroupBox4.Controls.Add(Me.TableLayoutPanel1)
         Me.GroupBox4.Dock = System.Windows.Forms.DockStyle.Fill
         Me.GroupBox4.Location = New System.Drawing.Point(935, 3)
         Me.GroupBox4.Name = "GroupBox4"
@@ -243,15 +251,50 @@ Partial Class MainForm
         Me.GroupBox4.TabStop = False
         Me.GroupBox4.Text = "Trials"
         '
+        'TableLayoutPanel1
+        '
+        Me.TableLayoutPanel1.ColumnCount = 1
+        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TableLayoutPanel1.Controls.Add(Me.Trials_ListBox, 0, 2)
+        Me.TableLayoutPanel1.Controls.Add(Me.TrialOrder_ComboBox, 0, 1)
+        Me.TableLayoutPanel1.Controls.Add(Me.Label5, 0, 0)
+        Me.TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TableLayoutPanel1.Location = New System.Drawing.Point(3, 19)
+        Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
+        Me.TableLayoutPanel1.RowCount = 3
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 15.0!))
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28.0!))
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TableLayoutPanel1.Size = New System.Drawing.Size(244, 404)
+        Me.TableLayoutPanel1.TabIndex = 1
+        '
         'Trials_ListBox
         '
         Me.Trials_ListBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Trials_ListBox.FormattingEnabled = True
         Me.Trials_ListBox.ItemHeight = 15
-        Me.Trials_ListBox.Location = New System.Drawing.Point(3, 19)
+        Me.Trials_ListBox.Location = New System.Drawing.Point(3, 46)
         Me.Trials_ListBox.Name = "Trials_ListBox"
-        Me.Trials_ListBox.Size = New System.Drawing.Size(244, 404)
+        Me.Trials_ListBox.Size = New System.Drawing.Size(238, 355)
         Me.Trials_ListBox.TabIndex = 0
+        '
+        'TrialOrder_ComboBox
+        '
+        Me.TrialOrder_ComboBox.FormattingEnabled = True
+        Me.TrialOrder_ComboBox.Location = New System.Drawing.Point(3, 18)
+        Me.TrialOrder_ComboBox.Name = "TrialOrder_ComboBox"
+        Me.TrialOrder_ComboBox.Size = New System.Drawing.Size(238, 23)
+        Me.TrialOrder_ComboBox.TabIndex = 10
+        '
+        'Label5
+        '
+        Me.Label5.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Label5.AutoSize = True
+        Me.Label5.Location = New System.Drawing.Point(182, 0)
+        Me.Label5.Name = "Label5"
+        Me.Label5.Size = New System.Drawing.Size(59, 15)
+        Me.Label5.TabIndex = 9
+        Me.Label5.Text = "Trial order"
         '
         'GroupBox3
         '
@@ -266,13 +309,21 @@ Partial Class MainForm
         '
         'TableLayoutPanel3
         '
-        Me.TableLayoutPanel3.ColumnCount = 2
-        Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 22.11765!))
-        Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 77.88235!))
+        Me.TableLayoutPanel3.ColumnCount = 6
+        Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 88.0!))
+        Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 78.0!))
+        Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50.0!))
+        Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 78.0!))
+        Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50.0!))
+        Me.TableLayoutPanel3.Controls.Add(Me.AdjustEnd_ComboBox, 5, 2)
         Me.TableLayoutPanel3.Controls.Add(Me.ExperimentVideo_ImageBox, 0, 0)
         Me.TableLayoutPanel3.Controls.Add(Me.ExperimentVideo_PlayButton, 1, 2)
         Me.TableLayoutPanel3.Controls.Add(Me.ExperimentVideo_TrackBar, 0, 1)
         Me.TableLayoutPanel3.Controls.Add(Me.ExperimentVideoAutoplay_CheckBox, 0, 2)
+        Me.TableLayoutPanel3.Controls.Add(Me.Label10, 2, 2)
+        Me.TableLayoutPanel3.Controls.Add(Me.Label11, 4, 2)
+        Me.TableLayoutPanel3.Controls.Add(Me.AdjustStart_ComboBox, 3, 2)
         Me.TableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel3.Location = New System.Drawing.Point(3, 19)
         Me.TableLayoutPanel3.Name = "TableLayoutPanel3"
@@ -283,10 +334,19 @@ Partial Class MainForm
         Me.TableLayoutPanel3.Size = New System.Drawing.Size(394, 298)
         Me.TableLayoutPanel3.TabIndex = 20
         '
+        'AdjustEnd_ComboBox
+        '
+        Me.AdjustEnd_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.AdjustEnd_ComboBox.FormattingEnabled = True
+        Me.AdjustEnd_ComboBox.Location = New System.Drawing.Point(347, 266)
+        Me.AdjustEnd_ComboBox.Name = "AdjustEnd_ComboBox"
+        Me.AdjustEnd_ComboBox.Size = New System.Drawing.Size(44, 23)
+        Me.AdjustEnd_ComboBox.TabIndex = 22
+        '
         'ExperimentVideo_ImageBox
         '
         Me.ExperimentVideo_ImageBox.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.TableLayoutPanel3.SetColumnSpan(Me.ExperimentVideo_ImageBox, 2)
+        Me.TableLayoutPanel3.SetColumnSpan(Me.ExperimentVideo_ImageBox, 6)
         Me.ExperimentVideo_ImageBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.ExperimentVideo_ImageBox.Location = New System.Drawing.Point(3, 3)
         Me.ExperimentVideo_ImageBox.Name = "ExperimentVideo_ImageBox"
@@ -298,7 +358,7 @@ Partial Class MainForm
         'ExperimentVideo_PlayButton
         '
         Me.ExperimentVideo_PlayButton.Enabled = False
-        Me.ExperimentVideo_PlayButton.Location = New System.Drawing.Point(90, 266)
+        Me.ExperimentVideo_PlayButton.Location = New System.Drawing.Point(91, 266)
         Me.ExperimentVideo_PlayButton.Name = "ExperimentVideo_PlayButton"
         Me.ExperimentVideo_PlayButton.Size = New System.Drawing.Size(44, 28)
         Me.ExperimentVideo_PlayButton.TabIndex = 1
@@ -307,7 +367,7 @@ Partial Class MainForm
         '
         'ExperimentVideo_TrackBar
         '
-        Me.TableLayoutPanel3.SetColumnSpan(Me.ExperimentVideo_TrackBar, 2)
+        Me.TableLayoutPanel3.SetColumnSpan(Me.ExperimentVideo_TrackBar, 6)
         Me.ExperimentVideo_TrackBar.Dock = System.Windows.Forms.DockStyle.Fill
         Me.ExperimentVideo_TrackBar.Location = New System.Drawing.Point(3, 231)
         Me.ExperimentVideo_TrackBar.Name = "ExperimentVideo_TrackBar"
@@ -321,10 +381,39 @@ Partial Class MainForm
         Me.ExperimentVideoAutoplay_CheckBox.Location = New System.Drawing.Point(10, 266)
         Me.ExperimentVideoAutoplay_CheckBox.Margin = New System.Windows.Forms.Padding(10, 3, 3, 3)
         Me.ExperimentVideoAutoplay_CheckBox.Name = "ExperimentVideoAutoplay_CheckBox"
-        Me.ExperimentVideoAutoplay_CheckBox.Size = New System.Drawing.Size(74, 29)
+        Me.ExperimentVideoAutoplay_CheckBox.Size = New System.Drawing.Size(75, 29)
         Me.ExperimentVideoAutoplay_CheckBox.TabIndex = 18
         Me.ExperimentVideoAutoplay_CheckBox.Text = "Autoplay"
         Me.ExperimentVideoAutoplay_CheckBox.UseVisualStyleBackColor = True
+        '
+        'Label10
+        '
+        Me.Label10.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label10.Location = New System.Drawing.Point(141, 263)
+        Me.Label10.Name = "Label10"
+        Me.Label10.Size = New System.Drawing.Size(72, 35)
+        Me.Label10.TabIndex = 19
+        Me.Label10.Text = "Adjust start"
+        Me.Label10.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        '
+        'Label11
+        '
+        Me.Label11.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label11.Location = New System.Drawing.Point(269, 263)
+        Me.Label11.Name = "Label11"
+        Me.Label11.Size = New System.Drawing.Size(72, 35)
+        Me.Label11.TabIndex = 20
+        Me.Label11.Text = "Adjust end"
+        Me.Label11.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        '
+        'AdjustStart_ComboBox
+        '
+        Me.AdjustStart_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.AdjustStart_ComboBox.FormattingEnabled = True
+        Me.AdjustStart_ComboBox.Location = New System.Drawing.Point(219, 266)
+        Me.AdjustStart_ComboBox.Name = "AdjustStart_ComboBox"
+        Me.AdjustStart_ComboBox.Size = New System.Drawing.Size(44, 23)
+        Me.AdjustStart_ComboBox.TabIndex = 21
         '
         'TableLayoutPanel2
         '
@@ -386,6 +475,8 @@ Partial Class MainForm
         '
         'Settings_GroupBox
         '
+        Me.Settings_GroupBox.Controls.Add(Me.SyncTimeInputBoxHolder_Panel)
+        Me.Settings_GroupBox.Controls.Add(Me.Label9)
         Me.Settings_GroupBox.Controls.Add(Me.SelectCorrectVideosFolder_Button)
         Me.Settings_GroupBox.Controls.Add(Me.CorrectVideosFolder_TextBox)
         Me.Settings_GroupBox.Controls.Add(Me.Label8)
@@ -395,8 +486,6 @@ Partial Class MainForm
         Me.Settings_GroupBox.Controls.Add(Me.LockSettings_Button)
         Me.Settings_GroupBox.Controls.Add(Me.ScoringType_ComboBox)
         Me.Settings_GroupBox.Controls.Add(Me.Label6)
-        Me.Settings_GroupBox.Controls.Add(Me.TrialOrder_ComboBox)
-        Me.Settings_GroupBox.Controls.Add(Me.Label5)
         Me.Settings_GroupBox.Controls.Add(Me.TrialEndColumnComboBox)
         Me.Settings_GroupBox.Controls.Add(Me.TrialStartColumn_ComboBox)
         Me.Settings_GroupBox.Controls.Add(Me.CorrectVideoColumn_ComboBox)
@@ -413,6 +502,23 @@ Partial Class MainForm
         Me.Settings_GroupBox.TabIndex = 0
         Me.Settings_GroupBox.TabStop = False
         Me.Settings_GroupBox.Text = "Settings"
+        '
+        'SyncTimeInputBoxHolder_Panel
+        '
+        Me.SyncTimeInputBoxHolder_Panel.Location = New System.Drawing.Point(663, 103)
+        Me.SyncTimeInputBoxHolder_Panel.Margin = New System.Windows.Forms.Padding(0)
+        Me.SyncTimeInputBoxHolder_Panel.Name = "SyncTimeInputBoxHolder_Panel"
+        Me.SyncTimeInputBoxHolder_Panel.Size = New System.Drawing.Size(224, 23)
+        Me.SyncTimeInputBoxHolder_Panel.TabIndex = 21
+        '
+        'Label9
+        '
+        Me.Label9.AutoSize = True
+        Me.Label9.Location = New System.Drawing.Point(444, 106)
+        Me.Label9.Name = "Label9"
+        Me.Label9.Size = New System.Drawing.Size(216, 15)
+        Me.Label9.TabIndex = 20
+        Me.Label9.Text = "Sync time (s, in experiment video time):"
         '
         'SelectCorrectVideosFolder_Button
         '
@@ -472,7 +578,7 @@ Partial Class MainForm
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.LockSettings_Button.Location = New System.Drawing.Point(893, 16)
         Me.LockSettings_Button.Name = "LockSettings_Button"
-        Me.LockSettings_Button.Size = New System.Drawing.Size(292, 110)
+        Me.LockSettings_Button.Size = New System.Drawing.Size(286, 110)
         Me.LockSettings_Button.TabIndex = 13
         Me.LockSettings_Button.Text = "Lock settings and start scoring"
         Me.LockSettings_Button.UseVisualStyleBackColor = True
@@ -480,7 +586,7 @@ Partial Class MainForm
         'ScoringType_ComboBox
         '
         Me.ScoringType_ComboBox.FormattingEnabled = True
-        Me.ScoringType_ComboBox.Location = New System.Drawing.Point(570, 103)
+        Me.ScoringType_ComboBox.Location = New System.Drawing.Point(570, 74)
         Me.ScoringType_ComboBox.Name = "ScoringType_ComboBox"
         Me.ScoringType_ComboBox.Size = New System.Drawing.Size(317, 23)
         Me.ScoringType_ComboBox.TabIndex = 12
@@ -488,28 +594,11 @@ Partial Class MainForm
         'Label6
         '
         Me.Label6.AutoSize = True
-        Me.Label6.Location = New System.Drawing.Point(444, 106)
+        Me.Label6.Location = New System.Drawing.Point(444, 77)
         Me.Label6.Name = "Label6"
         Me.Label6.Size = New System.Drawing.Size(76, 15)
         Me.Label6.TabIndex = 11
         Me.Label6.Text = "Scoring type:"
-        '
-        'TrialOrder_ComboBox
-        '
-        Me.TrialOrder_ComboBox.FormattingEnabled = True
-        Me.TrialOrder_ComboBox.Location = New System.Drawing.Point(570, 74)
-        Me.TrialOrder_ComboBox.Name = "TrialOrder_ComboBox"
-        Me.TrialOrder_ComboBox.Size = New System.Drawing.Size(317, 23)
-        Me.TrialOrder_ComboBox.TabIndex = 10
-        '
-        'Label5
-        '
-        Me.Label5.AutoSize = True
-        Me.Label5.Location = New System.Drawing.Point(444, 77)
-        Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(62, 15)
-        Me.Label5.TabIndex = 9
-        Me.Label5.Text = "Trial order:"
         '
         'TrialEndColumnComboBox
         '
@@ -637,6 +726,8 @@ Partial Class MainForm
         CType(Me.CorrectVideo_ImageBox, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.CorrectVideo_TrackBar, System.ComponentModel.ISupportInitialize).EndInit()
         Me.GroupBox4.ResumeLayout(False)
+        Me.TableLayoutPanel1.ResumeLayout(False)
+        Me.TableLayoutPanel1.PerformLayout()
         Me.GroupBox3.ResumeLayout(False)
         Me.TableLayoutPanel3.ResumeLayout(False)
         Me.TableLayoutPanel3.PerformLayout()
@@ -701,4 +792,11 @@ Partial Class MainForm
     Friend WithEvents ScoringPanelHolder_Panel As Panel
     Friend WithEvents MenuStrip1 As MenuStrip
     Friend WithEvents AboutToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents TableLayoutPanel1 As TableLayoutPanel
+    Friend WithEvents Label9 As Label
+    Friend WithEvents SyncTimeInputBoxHolder_Panel As Panel
+    Friend WithEvents AdjustEnd_ComboBox As ComboBox
+    Friend WithEvents Label10 As Label
+    Friend WithEvents Label11 As Label
+    Friend WithEvents AdjustStart_ComboBox As ComboBox
 End Class
