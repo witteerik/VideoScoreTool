@@ -51,7 +51,7 @@ Source code available at: https://github.com/witteerik/VideoScoreTool</Descripti
 
   <ItemGroup>
     <Reference Include="ControlsLibrary">
-      <HintPath>..\ControlsLibrary\bin\Debug\net6.0-windows\ControlsLibrary.dll</HintPath>
+      <HintPath>..\ControlsLibrary\bin\Release\net6.0-windows\ControlsLibrary.dll</HintPath>
     </Reference>
   </ItemGroup>
 

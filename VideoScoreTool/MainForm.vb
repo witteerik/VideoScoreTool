@@ -66,7 +66,7 @@ Public Class MainForm
         ScoringType_ComboBox.SelectedIndex = 0
 
         'Creating and adding the scoring panel
-        ScoringPanel = New ControlsLibrary.ScoringQuestionPanel
+        ScoringPanel = New ControlsLibrary.ScoringQuestionPanel(2, New Random(6))
         ScoringPanel.Dock = DockStyle.Fill
         ScoringPanelHolder_Panel.Controls.Add(ScoringPanel)
 
@@ -658,7 +658,7 @@ Public Class MainForm
         End If
     End Sub
 
-    Private Sub CorrectVideo_PlayButton_Click(sender As Object, e As EventArgs) Handles CorrectVideo_PlayButton.Click
+    Private Sub CorrectVideo_PlayButton_Click(sender As Object, e As EventArgs)
 
         If SwappingTrials = True Then Exit Sub
 
@@ -683,7 +683,7 @@ Public Class MainForm
 
     End Sub
 
-    Private Sub ExperimentVideo_PlayButton_Click(sender As Object, e As EventArgs) Handles ExperimentVideo_PlayButton.Click
+    Private Sub ExperimentVideo_PlayButton_Click(sender As Object, e As EventArgs)
 
         If SwappingTrials = True Then Exit Sub
 
