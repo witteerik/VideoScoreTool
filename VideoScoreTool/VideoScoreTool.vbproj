@@ -20,6 +20,7 @@ License: GNU General Public License, Version 3.
 The software uses the EMGU.CV library.
 
 Source code available at: https://github.com/witteerik/VideoScoreTool</Description>
+    <Version>0.2.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
