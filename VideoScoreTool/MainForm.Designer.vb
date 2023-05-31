@@ -31,6 +31,7 @@ Partial Class MainForm
         Me.GroupBox5 = New System.Windows.Forms.GroupBox()
         Me.Video1_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
         Me.CorrectVideo_ImageBox = New Emgu.CV.UI.ImageBox()
+        Me.CorrectVideo_PlayButton = New ControlsLibrary.PlayButton()
         Me.CorrectVideo_TrackBar = New System.Windows.Forms.TrackBar()
         Me.CorrectVideoAutoplay_CheckBox = New System.Windows.Forms.CheckBox()
         Me.GroupBox4 = New System.Windows.Forms.GroupBox()
@@ -42,6 +43,7 @@ Partial Class MainForm
         Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
         Me.AdjustEnd_ComboBox = New System.Windows.Forms.ComboBox()
         Me.ExperimentVideo_ImageBox = New Emgu.CV.UI.ImageBox()
+        Me.ExperimentVideo_PlayButton = New ControlsLibrary.PlayButton()
         Me.ExperimentVideo_TrackBar = New System.Windows.Forms.TrackBar()
         Me.ExperimentVideoAutoplay_CheckBox = New System.Windows.Forms.CheckBox()
         Me.Label10 = New System.Windows.Forms.Label()
@@ -181,6 +183,7 @@ Partial Class MainForm
         Me.Video1_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 22.11765!))
         Me.Video1_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 77.88235!))
         Me.Video1_TableLayoutPanel.Controls.Add(Me.CorrectVideo_ImageBox, 0, 0)
+        Me.Video1_TableLayoutPanel.Controls.Add(Me.CorrectVideo_PlayButton, 1, 2)
         Me.Video1_TableLayoutPanel.Controls.Add(Me.CorrectVideo_TrackBar, 0, 1)
         Me.Video1_TableLayoutPanel.Controls.Add(Me.CorrectVideoAutoplay_CheckBox, 0, 2)
         Me.Video1_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
@@ -204,6 +207,16 @@ Partial Class MainForm
         Me.CorrectVideo_ImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
         Me.CorrectVideo_ImageBox.TabIndex = 2
         Me.CorrectVideo_ImageBox.TabStop = False
+        '
+        'CorrectVideo_PlayButton
+        '
+        Me.CorrectVideo_PlayButton.Enabled = False
+        Me.CorrectVideo_PlayButton.Location = New System.Drawing.Point(90, 266)
+        Me.CorrectVideo_PlayButton.Name = "CorrectVideo_PlayButton"
+        Me.CorrectVideo_PlayButton.Size = New System.Drawing.Size(44, 28)
+        Me.CorrectVideo_PlayButton.TabIndex = 1
+        Me.CorrectVideo_PlayButton.UseVisualStyleBackColor = True
+        Me.CorrectVideo_PlayButton.ViewMode = ControlsLibrary.PlayButton.ViewModes.Play
         '
         'CorrectVideo_TrackBar
         '
@@ -305,6 +318,7 @@ Partial Class MainForm
         Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50.0!))
         Me.TableLayoutPanel3.Controls.Add(Me.AdjustEnd_ComboBox, 5, 2)
         Me.TableLayoutPanel3.Controls.Add(Me.ExperimentVideo_ImageBox, 0, 0)
+        Me.TableLayoutPanel3.Controls.Add(Me.ExperimentVideo_PlayButton, 1, 2)
         Me.TableLayoutPanel3.Controls.Add(Me.ExperimentVideo_TrackBar, 0, 1)
         Me.TableLayoutPanel3.Controls.Add(Me.ExperimentVideoAutoplay_CheckBox, 0, 2)
         Me.TableLayoutPanel3.Controls.Add(Me.Label10, 2, 2)
@@ -340,6 +354,16 @@ Partial Class MainForm
         Me.ExperimentVideo_ImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
         Me.ExperimentVideo_ImageBox.TabIndex = 2
         Me.ExperimentVideo_ImageBox.TabStop = False
+        '
+        'ExperimentVideo_PlayButton
+        '
+        Me.ExperimentVideo_PlayButton.Enabled = False
+        Me.ExperimentVideo_PlayButton.Location = New System.Drawing.Point(91, 266)
+        Me.ExperimentVideo_PlayButton.Name = "ExperimentVideo_PlayButton"
+        Me.ExperimentVideo_PlayButton.Size = New System.Drawing.Size(44, 28)
+        Me.ExperimentVideo_PlayButton.TabIndex = 1
+        Me.ExperimentVideo_PlayButton.UseVisualStyleBackColor = True
+        Me.ExperimentVideo_PlayButton.ViewMode = ControlsLibrary.PlayButton.ViewModes.Play
         '
         'ExperimentVideo_TrackBar
         '

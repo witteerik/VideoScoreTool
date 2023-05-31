@@ -658,7 +658,7 @@ Public Class MainForm
         End If
     End Sub
 
-    Private Sub CorrectVideo_PlayButton_Click(sender As Object, e As EventArgs)
+    Private Sub CorrectVideo_PlayButton_Click(sender As Object, e As EventArgs) Handles CorrectVideo_PlayButton.Click
 
         If SwappingTrials = True Then Exit Sub
 
@@ -683,7 +683,7 @@ Public Class MainForm
 
     End Sub
 
-    Private Sub ExperimentVideo_PlayButton_Click(sender As Object, e As EventArgs)
+    Private Sub ExperimentVideo_PlayButton_Click(sender As Object, e As EventArgs) Handles ExperimentVideo_PlayButton.Click
 
         If SwappingTrials = True Then Exit Sub
 
