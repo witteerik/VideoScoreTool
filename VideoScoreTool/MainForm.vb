@@ -41,6 +41,10 @@ Public Class MainForm
 
     Private SwappingTrials As Boolean = False
 
+    Private ContinuationSession As Boolean = False
+    Private ScoringResultInputColumnIndex As Integer = -1
+
+
     Private Enum NextViewSenderTypes
         Timer
         TrackBar
@@ -117,6 +121,30 @@ Public Class MainForm
                 For i = 0 To Columns.Length - 1
                     DataFileColumns.Add(Columns(i).Trim)
                 Next
+            End If
+
+            'Checking if the ScoringColumnName columns exist (the file has been previously worked on)
+            If DataFileColumns.Contains(VideoTrialSet.ScoringColumnName) Then
+                'Notifies the user 
+                MsgBox("The input file contains a column named " & VideoTrialSet.ScoringColumnName & ". Please note that this column namen is reserved for storing the video scoring results and should not be used for other input data. " &
+                       "If the input file you've working on has been previously saved by Video Score Tool, this is just fine. But if this is the first time you open the file in Video Score Tool, you need to close this software and rename the " & VideoTrialSet.ScoringColumnName & " column before continuing." & vbCrLf & vbCrLf &
+                       "If you've open the file in order to continuing the scoring process, trials that have already been scored will not be shown. However, all trials will still be included when you save your data.", MsgBoxStyle.Information, "Detected previous scoring!")
+                ContinuationSession = True
+
+                'Getting the index of the input data scoring result column
+                For q = 0 To DataFileColumns.Count - 1
+                    If DataFileColumns(q) = VideoTrialSet.ScoringColumnName Then
+                        ScoringResultInputColumnIndex = q
+                    End If
+                Next
+            Else
+                ContinuationSession = False
+            End If
+
+            'Checks that the ScoringResultInputColumnIndex was really retrieved
+            If ScoringResultInputColumnIndex = -1 Then
+                MsgBox("Unable to locate the input file scoring column! (If this happens, it's most probably a bug!)", MsgBoxStyle.Exclamation)
+                Exit Sub
             End If
 
             RawDataFileInputRows = New List(Of String)
@@ -238,6 +266,15 @@ Public Class MainForm
             If CorrectVideo = "" Then ShouldBeScored = False
             If TrialVideoStartTime = -1 Then ShouldBeScored = False
             If TrialVideoEndTime = -1 Then ShouldBeScored = False
+
+            If ContinuationSession = True Then
+                'If the scoring result column is empty, the trial is included for scoring, other wise it's not included for scoring but still kept for saving/exporting the data
+                If Columns(ScoringResultInputColumnIndex).Trim = "" Then
+                    ShouldBeScored = True
+                Else
+                    ShouldBeScored = False
+                End If
+            End If
 
             If CorrectVideo.Trim <> "" Then
                 'Trimming off everything but the file name, and adds the user supplied CorrectVideosFolder
@@ -773,6 +810,9 @@ Public Class MainForm
         If Result = MsgBoxResult.Yes Then
 
             'Resetting things
+
+            ContinuationSession = False
+            ScoringResultInputColumnIndex = -1
 
             CorrectVideoFrameTimer.Stop()
             ExperimentVideoFrameTimer.Stop()

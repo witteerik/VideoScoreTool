@@ -1,6 +1,8 @@
 ﻿Public Class VideoTrialSet
     Public Property TrialList As New List(Of VideoTrial)
 
+    Public Const ScoringColumnName As String = "VideoScore"
+
     Public Enum Trialorders
         Random
         Chronological
@@ -97,7 +99,8 @@
             For Each Heading In VariableList
                 HeadingList.Add(Heading)
             Next
-            HeadingList.Add("VideoScore")
+
+            HeadingList.Add(ScoringColumnName)
             ExportList.Add(String.Join(vbTab, HeadingList))
 
             Dim SortedTrialListCopy = GetSortedTrialListCopy(Trialorders.Input)
