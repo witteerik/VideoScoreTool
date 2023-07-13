@@ -1,4 +1,5 @@
 ﻿Imports System.Globalization
+Imports System.Numerics
 Imports ControlsLibrary
 Imports Emgu.CV
 Imports Emgu.CV.CvEnum
@@ -42,7 +43,6 @@ Public Class MainForm
     Private SwappingTrials As Boolean = False
 
     Private ContinuationSession As Boolean = False
-    Private ScoringResultInputColumnIndex As Integer = -1
 
 
     Private Enum NextViewSenderTypes
@@ -123,28 +123,27 @@ Public Class MainForm
                 Next
             End If
 
-            'Checking if the ScoringColumnName columns exist (the file has been previously worked on)
-            If DataFileColumns.Contains(VideoTrialSet.ScoringColumnName) Then
+            'Checking if the ScoringColumnName columns exist as the last column (the file has been previously worked on)
+            Dim HasPreviousScorings As Boolean = False
+            If DataFileColumns(DataFileColumns.Count - 1).Trim.StartsWith(VideoTrialSet.ScoringColumnNamePrefix) Then
                 'Notifies the user 
-                MsgBox("The input file contains a column named " & VideoTrialSet.ScoringColumnName & ". Please note that this column namen is reserved for storing the video scoring results and should not be used for other input data. " &
-                       "If the input file you've working on has been previously saved by Video Score Tool, this is just fine. But if this is the first time you open the file in Video Score Tool, you need to close this software and rename the " & VideoTrialSet.ScoringColumnName & " column before continuing." & vbCrLf & vbCrLf &
-                       "If you've open the file in order to continuing the scoring process, trials that have already been scored will not be shown. However, all trials will still be included when you save your data.", MsgBoxStyle.Information, "Detected previous scoring!")
+                MsgBox("The input file contains a column that starts with " & VideoTrialSet.ScoringColumnNamePrefix & ". This indicates that the you're continuing scoring the input file. " & vbCrLf & vbCrLf &
+                       "Please note that these column names are reserved and used for storing the video scoring results. The (last) scoring should always be located in the last column in the input file. " & vbCrLf & vbCrLf &
+                       "Also note that the trials that have already been scored will not be shown. However, all trials will still be included when you save your data.", MsgBoxStyle.Information, "Detected previous scoring!")
                 ContinuationSession = True
+            Else
 
-                'Getting the index of the input data scoring result column
-                For q = 0 To DataFileColumns.Count - 1
-                    If DataFileColumns(q) = VideoTrialSet.ScoringColumnName Then
-                        ScoringResultInputColumnIndex = q
+                ' Checking that no previous scoring column was missed
+                For w = 0 To DataFileColumns.Count - 2
+                    If DataFileColumns(w).Trim.StartsWith(VideoTrialSet.ScoringColumnNamePrefix) Then
+                        MsgBox("The input file contains a column that starts with " & VideoTrialSet.ScoringColumnNamePrefix & " but is not placed as the last column in the input file. This indicates that the you're continuing the scoring the input file but have added more columns after the last scoring. This is not supported! " & vbCrLf & vbCrLf &
+                       "Please note that these column names are reserved and used for storing the video scoring results. The last scoring should always be located in the last column in the input file. " & vbCrLf & vbCrLf &
+                       "Please re-arrage you input file so that the last scoring you did is located as the last input column.", MsgBoxStyle.Exclamation, "Detected previous scoring, but not located as the last column!")
+                        Exit Sub
                     End If
                 Next
-            Else
-                ContinuationSession = False
-            End If
 
-            'Checks that the ScoringResultInputColumnIndex was really retrieved
-            If ScoringResultInputColumnIndex = -1 Then
-                MsgBox("Unable to locate the input file scoring column! (If this happens, it's most probably a bug!)", MsgBoxStyle.Exclamation)
-                Exit Sub
+                ContinuationSession = False
             End If
 
             RawDataFileInputRows = New List(Of String)
@@ -267,11 +266,10 @@ Public Class MainForm
             If TrialVideoStartTime = -1 Then ShouldBeScored = False
             If TrialVideoEndTime = -1 Then ShouldBeScored = False
 
+            Dim ScoringResultInputColumnIndex As Integer = Columns.Length - 1
             If ContinuationSession = True Then
-                'If the scoring result column is empty, the trial is included for scoring, other wise it's not included for scoring but still kept for saving/exporting the data
-                If Columns(ScoringResultInputColumnIndex).Trim = "" Then
-                    ShouldBeScored = True
-                Else
+                'If the scoring result column is empty, the trial is included for scoring, otherwise it's not included for scoring but still kept for saving/exporting the data
+                If Columns(ScoringResultInputColumnIndex).Trim <> "" Then
                     ShouldBeScored = False
                 End If
             End If
@@ -281,7 +279,16 @@ Public Class MainForm
                 CorrectVideo = IO.Path.Join(CorrectVideosFolder, IO.Path.GetFileName(CorrectVideo))
             End If
 
-            CurrentVideoTrialSet.TrialList.Add(New VideoTrial(ScoringType_ComboBox.SelectedItem, ShouldBeScored, DataRow, CorrectVideo, TrialVideoStartTime, TrialVideoEndTime, i))
+            Dim NewTrial = New VideoTrial(ScoringType_ComboBox.SelectedItem, ShouldBeScored, DataRow, CorrectVideo, TrialVideoStartTime, TrialVideoEndTime, i)
+
+            'Storing the previous score (if any)
+            If ContinuationSession = True Then
+                If Columns(ScoringResultInputColumnIndex).Trim <> "" Then
+                    NewTrial.PreloadedScore = Columns(ScoringResultInputColumnIndex).Trim
+                End If
+            End If
+
+            CurrentVideoTrialSet.TrialList.Add(NewTrial)
 
         Next
 
@@ -486,7 +493,7 @@ Public Class MainForm
         CurrentExperimentVideoEndFrame = Math.Min(CurrentExperimentVideoLength - 1, Math.Max(0, Math.Ceiling((Trial.TrialVideoEndTime + ExpVideoSyncTime + AdjustEnd_ComboBox.SelectedItem) * CurrentExperimentVideoFrameRate)))
 
         'Warns if time is outside of video length
-        If CurrentExperimentVideoLength < Math.Floor(Trial.TrialVideoStartTime * CurrentExperimentVideoFrameRate) Then
+        If CurrentExperimentVideoLength <Math.Floor(Trial.TrialVideoStartTime * CurrentExperimentVideoFrameRate) Then
             MsgBox("The specified start time is beyond the duration of the experiment video. No trial video will be shown!", MsgBoxStyle.Information, "Missing trial video")
         End If
 
@@ -812,7 +819,6 @@ Public Class MainForm
             'Resetting things
 
             ContinuationSession = False
-            ScoringResultInputColumnIndex = -1
 
             CorrectVideoFrameTimer.Stop()
             ExperimentVideoFrameTimer.Stop()

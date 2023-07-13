@@ -1,7 +1,9 @@
-﻿Public Class VideoTrialSet
+﻿Imports System.Formats.Asn1.AsnWriter
+
+Public Class VideoTrialSet
     Public Property TrialList As New List(Of VideoTrial)
 
-    Public Const ScoringColumnName As String = "VideoScore"
+    Public Const ScoringColumnNamePrefix As String = "VideoScore"
 
     Public Enum Trialorders
         Random
@@ -100,7 +102,8 @@
                 HeadingList.Add(Heading)
             Next
 
-            HeadingList.Add(ScoringColumnName)
+            HeadingList.Add(ScoringColumnNamePrefix & "_" & DateTime.Now.ToString(Globalization.CultureInfo.InvariantCulture).Replace(" ", "_").Replace("/", "_").Replace(":", "_"))
+
             ExportList.Add(String.Join(vbTab, HeadingList))
 
             Dim SortedTrialListCopy = GetSortedTrialListCopy(Trialorders.Input)
@@ -108,13 +111,7 @@
             If SortedTrialListCopy.Count > 0 Then
 
                 For n = 0 To SortedTrialListCopy.Count - 1
-
-                    If SortedTrialListCopy(n).IsScored = True Then
-                        ExportList.Add(SortedTrialListCopy(n).RawData & vbTab & SortedTrialListCopy(n).GetScore)
-                    Else
-                        ExportList.Add(SortedTrialListCopy(n).RawData & vbTab & "")
-                    End If
-
+                    ExportList.Add(SortedTrialListCopy(n).RawData & vbTab & SortedTrialListCopy(n).GetScore)
                 Next
 
             End If
@@ -224,27 +221,34 @@ Public Class VideoTrial
 
     End Function
 
+    Public Property PreloadedScore As String = ""
 
     Public Function GetScore() As String
 
-        If Question.QuestionType = ScoringQuestion.QuestionTypes.Categorical Then
-            If Question.CategoricalResponse <> "" Then
-                Return Question.CategoricalResponse
-            Else
-                Return ""
-            End If
-        ElseIf Question.QuestionType = ScoringQuestion.QuestionTypes.Text Then
-            If Question.TextResponse.Trim <> "" Then
-                Return Question.TextResponse.Replace(vbCrLf, "; ")
-            Else
-                Return ""
-            End If
+        If PreloadedScore <> "" Then
+            Return PreloadedScore
         Else
-            If Question.ScaleResponse.HasValue = True Then
-                Return Question.ScaleResponse
+
+            If Question.QuestionType = ScoringQuestion.QuestionTypes.Categorical Then
+                If Question.CategoricalResponse <> "" Then
+                    Return Question.CategoricalResponse
+                Else
+                    Return ""
+                End If
+            ElseIf Question.QuestionType = ScoringQuestion.QuestionTypes.Text Then
+                If Question.TextResponse.Trim <> "" Then
+                    Return Question.TextResponse.Replace(vbCrLf, "; ")
+                Else
+                    Return ""
+                End If
             Else
-                Return ""
+                If Question.ScaleResponse.HasValue = True Then
+                    Return Question.ScaleResponse
+                Else
+                    Return ""
+                End If
             End If
+
         End If
 
     End Function
@@ -257,7 +261,7 @@ Public Class VideoTrial
 
         Dim OutputList As New List(Of String)
 
-        OutputList.Add(RawDataLine - 1)
+        OutputList.Add(RawDataLine + 1)
         OutputList.Add(IO.Path.GetFileName(CorrectVideoPath))
         OutputList.Add(Math.Round(TrialVideoStartTime, 3) & " s")
 
